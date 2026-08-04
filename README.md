@@ -28,14 +28,6 @@ README.md                      this file
 Every page is a single self-contained HTML file. No build step, no dependencies to ship —
 open any file in a browser and it works.
 
-## How it grows
-
-New topics are added **one at a time, by conversation**. A topic is proposed, researched,
-its figures drawn (geometric ones computed for correctness), built as a new page in
-`topics/`, and linked from the hub. The full recipe and conventions live in
-[`CLAUDE.md`](./CLAUDE.md), which is written for [Claude Code](https://claude.com/claude-code)
-to follow — open Claude Code in this repo and ask it to add a topic.
-
 ## Local preview
 
 Just open `index.html` in a browser. For link-relative correctness you can optionally serve
@@ -48,7 +40,7 @@ python3 -m http.server
 
 ## Maintenance & QA
 
-Contributors (human or Claude Code) should read `CLAUDE.md` before editing. It defines the
+Contributors (human & Claude Code) should read `CLAUDE.md` before editing. It defines the
 design tokens, the entry schema, the figure house-style and overflow budget, the image and
 source policy, and the QA checks that must pass before every commit. The only dev dependency
 is `jsdom`, used for the smoke tests:
