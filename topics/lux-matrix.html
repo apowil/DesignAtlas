@@ -453,10 +453,14 @@ footer p{max-width:74ch;margin:8px 0 0}
     <div class="lg">
       <div class="lgt">Lumen-method check <span class="lgh">— includes interreflection</span></div>
       <div class="lr">
-        <label>Utilisation factor<span style="display:block;font-size:10px;color:#3a4048">room geometry + reflectances</span></label>
+        <label>Utilisation factor<span style="display:block;font-size:10px;color:#3a4048">room index K <span id="lki">—</span></span></label>
         <span class="lv" id="lufv">0.50</span>
       </div>
       <input type="range" id="luf" min="0.3" max="0.85" step="0.01" value="0.5">
+      <div class="lseg" id="lufmode" style="margin-top:8px">
+        <button data-u="auto" class="on" title="Derive UF from the room index — recommended">Auto from room</button>
+        <button data-u="manual" title="Set UF by hand">Manual</button>
+      </div>
       <div class="lr" style="margin-top:4px;font-size:10.5px;color:#5c6771">
         <span style="font-family:ui-monospace,Consolas,monospace">Ē ≈ N·Φ·UF·MF / A</span>
         <span class="lv" id="lest" style="font-size:12px">— lx</span>
@@ -654,7 +658,7 @@ function sc(map,t){t=Math.max(0,Math.min(1,t));const s=t*(map.length-1),i=Math.f
 function gcss(name){const m=CMAPS[name];return'linear-gradient(90deg,'+m.map((c,i)=>`rgb(${c[0]},${c[1]},${c[2]}) ${(i/(m.length-1)*100).toFixed(0)}%`).join(',')+')';}
 
 // State — defaults overwritten by first preset
-const S={target:200,W:5,D:4,H:2.7,WP:0,cols:2,rows:2,lm:3000,dist:'lambertian',mf:0.8,uf:0.5,inter:'on',cmap:'viridis',interp:'smooth'};
+const S={target:200,W:5,D:4,H:2.7,WP:0,cols:2,rows:2,lm:3000,dist:'lambertian',mf:0.8,uf:0.5,ufMode:'auto',inter:'on',cmap:'viridis',interp:'smooth'};
 const NX=28,NY=28;
 let lf=new Float32Array(NX*NY),scaleMax=300;
 
@@ -669,6 +673,22 @@ function fixPos(){const P=[];for(let r=0;r<S.rows;r++)for(let c=0;c<S.cols;c++)P
 // band is excluded, because a direct-only model always reads dark against a wall
 // (no interreflection) and would fail U0 on every otherwise-sound layout.
 function bandWidth(){return Math.min(0.5,S.W*0.15,S.D*0.15);}
+
+// Room index K = (W·D) / (Hm·(W+D)). Utilisation factor climbs steeply with K:
+// a big shallow room returns far more of its flux to the work plane than a small
+// tall one. Holding UF at a single value across every room is the classic error —
+// it starves large spaces of their interreflected component.
+function roomIndex(){const Hm=Math.max(0.05,S.H-S.WP);return(S.W*S.D)/(Hm*(S.W+S.D));}
+const UF_TABLE=[[0.6,0.40],[0.8,0.46],[1.0,0.52],[1.25,0.56],[1.5,0.60],[2.0,0.65],[2.5,0.68],[3.0,0.70],[4.0,0.73],[5.0,0.75]];
+function autoUF(){                       // direct luminaire, 70/50/20 reflectances
+  const K=roomIndex(),T=UF_TABLE,last=T.length-1;
+  if(K<=T[0][0])return T[0][1];
+  if(K>=T[last][0])return T[last][1];
+  for(let i=0;i<last;i++)if(K<=T[i+1][0]){
+    const t=(K-T[i][0])/(T[i+1][0]-T[i][0]);
+    return T[i][1]+t*(T[i+1][1]-T[i][1]);}
+  return 0.5;
+}
 function compute(){
   const h=Math.max(0.05,S.H-S.WP),m=fixtureModel(),P=fixPos();
   // pass 1 — direct component, point by point
@@ -744,6 +764,8 @@ const $=id=>document.getElementById(id);
 
 function refresh(rebuild){
   if(rebuild)buildScene();
+  if(S.ufMode==='auto'){S.uf=autoUF();$('luf').value=S.uf;$('lufv').textContent=S.uf.toFixed(2);}
+  $('lki').textContent=roomIndex().toFixed(2);
   const st=compute();
   scaleMax=nc(Math.max(st.mx,S.target)*1.02);
   paintMap();
@@ -783,9 +805,14 @@ function refresh(rebuild){
 function bn(id,key,rebuild){const el=$(id);el.value=S[key];el.addEventListener('input',()=>{const v=parseFloat(el.value);if(!isNaN(v)){S[key]=v;refresh(rebuild);}});}
 bn('lt','target',false);bn('lW','W',true);bn('lD','D',true);bn('lH','H',true);bn('lWP','WP',true);bn('lc','cols',true);bn('lr2','rows',true);bn('llm','lm',false);
 $('lmf').addEventListener('input',e=>{S.mf=+e.target.value;$('lmfv').textContent=S.mf.toFixed(2);refresh(false);});
-$('luf').addEventListener('input',e=>{S.uf=+e.target.value;$('lufv').textContent=S.uf.toFixed(2);refresh(false);});
+// Dragging the UF slider is an explicit override — flip the mode so refresh()
+// stops recomputing UF from the room and overwriting what was just set.
+$('luf').addEventListener('input',e=>{
+  S.uf=+e.target.value;S.ufMode='manual';
+  document.querySelectorAll('#lufmode button').forEach(b=>b.classList.toggle('on',b.dataset.u==='manual'));
+  $('lufv').textContent=S.uf.toFixed(2);refresh(false);});
 function bs(wid,attr,key,rebuild){document.querySelectorAll('#'+wid+' button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#'+wid+' button').forEach(x=>x.classList.remove('on'));b.classList.add('on');S[key]=b.dataset[attr];refresh(rebuild);}));}
-bs('ldist','d','dist',false);bs('lcmap','c','cmap',false);bs('linterp','i','interp',false);bs('linter','x','inter',false);
+bs('ldist','d','dist',false);bs('lcmap','c','cmap',false);bs('linterp','i','interp',false);bs('linter','x','inter',false);bs('lufmode','u','ufMode',false);
 </script>
 </body>
 </html>
