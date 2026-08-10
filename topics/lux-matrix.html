@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LUX Matrix — Interior Design · Design Atlas</title>
+<meta name="description" content="Illuminance design for interior spaces — vocabulary, standards and an interactive 3D lux calculator checked against EN 12464-1.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Karla:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* === Design Atlas tokens === */
+:root{
+  --ink:#1a1b1e;--booth:#212328;--booth-2:#282b31;
+  --steel:#3a3f47;--steel-2:#4c525c;
+  --vellum:#e9e7e2;--vellum-dim:#9aa0a8;--vellum-mute:#6f767f;
+  --comb:#ff4d8d;--iso:#4fd6c0;--draft:#f5b544;
+  --r:3px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--ink);color:var(--vellum);font-family:Karla,"Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:Archivo,"Helvetica Neue",Arial,sans-serif;margin:0;line-height:1.1}
+a{color:var(--iso);text-decoration:none}
+a:hover{text-decoration:underline}
+::selection{background:var(--comb);color:#fff}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+
+/* masthead */
+header.mast{border-bottom:1px solid var(--steel);background:linear-gradient(180deg,#1d1f23,var(--ink));padding:38px 0 30px;position:relative;overflow:hidden}
+.breadcrumb{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--vellum-mute);margin-bottom:12px;display:flex;gap:8px;align-items:center}
+.breadcrumb a{color:var(--vellum-mute)}
+.breadcrumb a:hover{color:var(--iso)}
+.mast .eyebrow{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--iso);margin-bottom:14px}
+.mast h1{font-size:clamp(32px,6vw,64px);font-weight:800;letter-spacing:-.03em;text-transform:uppercase}
+.mast h1 em{font-style:normal;color:var(--comb)}
+.mast p.lede{max-width:64ch;margin:16px 0 0;color:var(--vellum-dim);font-size:16px}
+.mast .meta-row{display:flex;gap:24px;flex-wrap:wrap;margin-top:20px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--vellum-mute);letter-spacing:.06em}
+.mast .meta-row b{color:var(--vellum);font-weight:500}
+
+/* sections */
+.atlas-section{margin-top:48px}
+.section-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--steel)}
+.section-head h2{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--vellum-mute)}
+.section-tag{font-family:"JetBrains Mono",monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;padding:2px 7px;border-radius:var(--r);border:1px solid var(--steel-2);color:var(--vellum-mute)}
+
+/* entry grid */
+.entry-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--steel);border:1px solid var(--steel)}
+.entry{background:var(--booth);padding:16px 18px;position:relative}
+.entry-wide{grid-column:1/-1}
+.entry .term{font-family:Archivo,sans-serif;font-size:15px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px}
+.entry .term em{font-style:normal;color:var(--draft)}
+.entry .sym{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--iso);margin-bottom:8px}
+.entry p{margin:0;font-size:13.5px;color:var(--vellum-dim);line-height:1.55}
+.entry .rule{margin-top:9px;padding:7px 10px;background:var(--booth-2);border-left:2px solid var(--draft);font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--vellum-dim);line-height:1.5}
+.entry .rule b{color:var(--vellum)}
+.entry .src{margin-top:8px;font-family:"JetBrains Mono",monospace;font-size:9.5px;color:var(--vellum-mute);letter-spacing:.06em}
+.entry .idx{position:absolute;top:12px;right:14px;font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--steel-2)}
+.formula{background:var(--booth-2);border:1px solid var(--steel);border-radius:var(--r);padding:13px 16px;margin-top:11px;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.9;color:var(--vellum)}
+.formula .cmnt{color:var(--vellum-mute);font-size:10.5px}
+.formula em{color:var(--iso);font-style:normal}
+
+/* standards table */
+.std-wrap{overflow-x:auto;border:1px solid var(--steel);border-radius:var(--r)}
+.std-table{width:100%;border-collapse:collapse;font-size:13px}
+.std-table thead th{font-family:"JetBrains Mono",monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--vellum-mute);padding:8px 12px;text-align:left;border-bottom:1px solid var(--steel);background:var(--booth)}
+.std-table td{padding:8px 12px;border-bottom:1px solid var(--steel);color:var(--vellum-dim);vertical-align:top}
+.std-table tr:last-child td{border-bottom:none}
+.std-table tr:hover td{background:var(--booth-2)}
+.std-table .sp{font-weight:600;color:var(--vellum)}
+.std-table .lx{font-family:"JetBrains Mono",monospace;color:var(--vellum);white-space:nowrap}
+.std-table .cct{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--iso);white-space:nowrap}
+.std-table .cri{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--draft)}
+.std-table .cat{font-family:"JetBrains Mono",monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--vellum-mute);padding:9px 12px 6px;background:var(--booth-2);border-bottom:1px solid var(--steel)}
+
+/* tool */
+.tool-head{padding:32px 0 18px;border-top:1px solid var(--steel);margin-top:48px}
+.tool-head h2{font-size:20px;font-weight:700;margin-bottom:8px}
+.tool-head p{color:var(--vellum-dim);font-size:14px;max-width:72ch;margin:0}
+#lux-app{display:grid;grid-template-columns:360px 1fr;height:640px;background:#0e1114;border:1px solid #2a323b}
+#lux-app *{box-sizing:border-box}
+#lux-panel{background:#171b20;border-right:1px solid #2a323b;overflow-y:auto;font-family:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:13px}
+#lux-panel::-webkit-scrollbar{width:8px}
+#lux-panel::-webkit-scrollbar-thumb{background:#2a323b;border-radius:8px}
+.lh{padding:15px 18px 11px;border-bottom:1px solid #2a323b}
+.lh h3{margin:0;font-size:14px;font-weight:600;color:#e6e9ec}
+.lh .ls{margin:3px 0 0;font-size:11px;color:#8b97a3;line-height:1.5}
+.lg{padding:13px 18px;border-bottom:1px solid #2a323b}
+.lgt{font-size:9.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#5c6771;margin-bottom:9px}
+.lgt .lgh{font-size:9px;font-weight:400;letter-spacing:.03em;text-transform:none;color:#3a4048}
+.lr{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0}
+.lr label{font-size:12px;color:#8b97a3;flex:0 0 auto;max-width:170px;line-height:1.35}
+.lr .lv{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:11.5px;color:#e6e9ec}
+#lux-app input[type=number],#lux-app select{background:#1e242b;border:1px solid #2a323b;color:#e6e9ec;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;border-radius:5px;padding:5px 7px;width:86px;text-align:right}
+#lux-app select{width:100%;text-align:left;font-family:ui-sans-serif,system-ui,sans-serif;font-size:12px}
+#lux-app input[type=number]:focus,#lux-app select:focus{outline:none;border-color:#f6a94a}
+#lux-app input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;background:#2a323b;border-radius:3px;outline:none;display:block;margin:5px 0 2px}
+#lux-app input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:#f6a94a;cursor:pointer;border:2px solid #171b20}
+#lux-app input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:#f6a94a;cursor:pointer;border:2px solid #171b20}
+.lseg{display:flex;background:#1e242b;border:1px solid #2a323b;border-radius:5px;overflow:hidden}
+.lseg button{flex:1;background:transparent;border:none;color:#8b97a3;font-size:11px;padding:6px 4px;cursor:pointer;transition:.1s;font-family:ui-sans-serif,system-ui,sans-serif}
+.lseg button.on{background:#f6a94a;color:#1a1206;font-weight:600}
+.lnote{font-size:10.5px;color:#5c6771;line-height:1.55;margin-top:9px;padding:7px 9px;background:#1e242b;border-radius:5px;border-left:2px solid #f6a94a}
+.lfoot{padding:11px 18px 16px;font-size:10px;color:#5c6771;line-height:1.6}
+.lfixct{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:10.5px;color:#f6a94a;margin-top:5px;text-align:center}
+#lux-view{position:relative;overflow:hidden;background:#0e1114}
+#lux-gl{display:block;width:100%;height:100%}
+#lux-hud{position:absolute;top:14px;left:14px;right:14px;display:flex;gap:9px;flex-wrap:wrap;pointer-events:none}
+.lstat{background:rgba(20,25,30,.86);backdrop-filter:blur(8px);border:1px solid #2a323b;border-radius:7px;padding:8px 11px;min-width:78px}
+.lstat .k{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#5c6771;font-family:ui-monospace,Consolas,monospace}
+.lstat .v{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:17px;margin-top:2px;color:#e6e9ec;line-height:1}
+.lstat .u{font-size:10px;color:#8b97a3;margin-left:1px}
+#lux-badges{position:absolute;bottom:50px;right:14px;display:flex;flex-direction:column;gap:6px;align-items:flex-end;pointer-events:none}
+.lbadge{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:11px;padding:5px 10px;border-radius:20px;display:flex;gap:6px;align-items:center;border:1px solid}
+.lbadge.pass{background:rgba(62,207,142,.12);border-color:rgba(62,207,142,.4);color:#3ecf8e}
+.lbadge.fail{background:rgba(255,107,107,.1);border-color:rgba(255,107,107,.38);color:#ff6b6b}
+.lbadge .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+#lux-legend{position:absolute;bottom:14px;left:14px;right:14px;max-width:480px;background:rgba(20,25,30,.86);backdrop-filter:blur(8px);border:1px solid #2a323b;border-radius:7px;padding:10px 13px 8px}
+#lux-legend .lgtitle{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#5c6771;margin-bottom:6px;font-family:ui-monospace,Consolas,monospace}
+#lux-bar{height:11px;border-radius:3px;position:relative}
+#lux-ticks{position:relative;height:15px;margin-top:3px}
+#lux-ticks span{position:absolute;transform:translateX(-50%);font-family:ui-monospace,Consolas,monospace;font-size:9.5px;color:#8b97a3}
+#lux-tgtmark{position:absolute;top:-3px;width:2px;height:17px;background:#fff}
+#lux-tgtlbl{position:absolute;top:-17px;transform:translateX(-50%);font-family:ui-monospace,Consolas,monospace;font-size:9px;color:#fff;white-space:nowrap}
+.lhint{position:absolute;bottom:14px;right:14px;font-size:9.5px;color:#3a4048;text-align:right;line-height:1.5;pointer-events:none}
+
+/* reading + heuristics */
+.out-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:16px}
+.out-card{background:var(--booth);border:1px solid var(--steel);border-radius:var(--r);padding:15px 17px}
+.out-card .klabel{font-family:"JetBrains Mono",monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--vellum-mute);margin-bottom:7px}
+.out-card .kval{font-family:Archivo,sans-serif;font-size:19px;font-weight:700;margin-bottom:5px}
+.out-card p{margin:0;font-size:12.5px;color:var(--vellum-dim);line-height:1.5}
+.heur-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1px;background:var(--steel);border:1px solid var(--steel);margin-top:8px}
+.heur{background:var(--booth);padding:14px 16px}
+.heur .rn{font-family:"JetBrains Mono",monospace;font-size:9.5px;color:var(--comb);letter-spacing:.1em;margin-bottom:5px}
+.heur h4{font-size:14px;font-weight:600;margin-bottom:5px}
+.heur p{margin:0;font-size:12.5px;color:var(--vellum-dim);line-height:1.5}
+.heur .rf{margin-top:8px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--draft);background:var(--booth-2);padding:5px 8px;border-radius:3px}
+footer{border-top:1px solid var(--steel);padding:22px 0 40px;margin-top:60px;color:var(--vellum-mute);font-size:12.5px}
+footer p{max-width:74ch;margin:8px 0 0}
+@media(max-width:700px){
+  #lux-app{grid-template-columns:1fr;height:auto}
+  #lux-panel{height:480px}
+  #lux-view{height:400px}
+}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="wrap">
+    <nav class="breadcrumb">
+      <a href="../index.html">Design Atlas</a>
+      <span style="opacity:.4">›</span>
+      <span>Interior Design</span>
+      <span style="opacity:.4">›</span>
+      <span style="color:var(--vellum)">LUX Matrix</span>
+    </nav>
+    <div class="eyebrow">Interior Design · Illuminance &amp; Standards</div>
+    <h1>LUX <em>Matrix</em></h1>
+    <p class="lede">The vocabulary, governing numbers and an interactive 3-D calculator for designing interior illuminance — from living rooms to retail floors — checked against EN&nbsp;12464-1 and IS&nbsp;3646 in real time.</p>
+    <div class="meta-row">
+      <span><b>15</b> entries</span>
+      <span><b>1</b> interactive figure</span>
+      <span><b>3</b> standards</span>
+      <span><b>20</b> space-type presets</span>
+      <span><b>6</b> heuristics</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- A: FUNDAMENTALS -->
+<section class="atlas-section">
+  <div class="section-head">
+    <h2>A — Illuminance fundamentals</h2>
+    <span class="section-tag">Photometry</span>
+  </div>
+  <div class="entry-grid">
+
+    <div class="entry">
+      <span class="idx">A.1</span>
+      <div class="term">Illuminance <em>E</em></div>
+      <div class="sym">E · lux (lx) · lm / m²</div>
+      <p>Luminous flux received per unit area of a surface. Measures how much light falls on a plane — independent of surface colour or reflectance. 1 lux = 1 lumen per square metre.</p>
+      <div class="rule"><b>Feel it:</b> full sun ~100 000 lx · overcast day ~10 000 lx · office 300–500 lx · corridor 100 lx · candlelit 10 lx</div>
+      <div class="src">SI quantity · IEC 60050-845</div>
+    </div>
+
+    <div class="entry">
+      <span class="idx">A.2</span>
+      <div class="term">Luminous flux <em>Φ</em></div>
+      <div class="sym">Φ · lumen (lm)</div>
+      <p>Total light power emitted by a source, weighted by the eye's spectral sensitivity (photopic curve). This is the figure on the lamp packaging — output before any fitting or room losses.</p>
+      <div class="rule"><b>Typical outputs:</b> E27 bulb 800 lm · GU10 spot 350 lm · 600×600 LED panel 3 000–5 000 lm · high-bay 15 000–30 000 lm</div>
+      <div class="src">SI quantity · CIE 015:2018 · photopic V(λ) curve</div>
+    </div>
+
+    <div class="entry">
+      <span class="idx">A.3</span>
+      <div class="term">Luminous intensity <em>I</em></div>
+      <div class="sym">I · candela (cd) · lm / sr</div>
+      <p>Flux per unit solid angle in a given direction. Describes how a fitting concentrates light — identical flux can produce a narrow intense beam or a soft diffuse glow depending on I(β).</p>
+      <div class="rule"><b>Distribution shapes:</b> omni I₀ = Φ/4π · Lambertian panel I₀cosβ, I₀ = Φ/π · spot I₀cosⁿβ, I₀ = Φ(n+1)/2π</div>
+      <div class="src">SI base unit · IES TM-25 · EULUMDAT format</div>
+    </div>
+
+    <div class="entry">
+      <span class="idx">A.4</span>
+      <div class="term">Luminance <em>L</em></div>
+      <div class="sym">L · cd / m²</div>
+      <p>What the eye perceives: flux per unit area leaving a surface toward the viewer. Luminance drives glare — a bright bare lamp in a dark room causes eye-strain even at low illuminance levels.</p>
+      <div class="rule"><b>Glare rule:</b> limit luminaire surface luminance to &lt;1 000 cd/m² above 65° from nadir for office UGR ≤ 19 (EN 12464-1 Annex A)</div>
+      <div class="src">SI quantity · CIBSE Guide A §2 · EN 12464-1:2021 §5.4</div>
+    </div>
+
+    <div class="entry">
+      <span class="idx">A.5</span>
+      <div class="term">Maintained illuminance <em>Ēm</em></div>
+      <div class="sym">Ēm · lx · time-averaged minimum</div>
+      <p>The minimum acceptable average illuminance over the reference plane at the end of the maintenance cycle, after lamp ageing and dust accumulation. All EN 12464-1 targets are maintained values.</p>
+      <div class="rule"><b>Installed = Ēm ÷ MF</b> — a 400 lx maintained target with MF 0.80 requires a fresh-lamp average of 500 lx at install</div>
+      <div class="src">EN 12464-1:2021 §5.3.1 · CIE S 008</div>
+    </div>
+
+    <div class="entry">
+      <span class="idx">A.6</span>
+      <div class="term">Maintenance factor <em>MF</em></div>
+      <div class="sym">MF · 0–1 · dimensionless</div>
+      <p>Ratio of illuminance at end-of-period to initial. Combines lamp lumen depreciation (LLMF), luminaire dirt depreciation (LDD) and room surface dirt depreciation (RSDD).</p>
+      <div class="rule"><b>Typical:</b> clean office LED 0.85 · industrial LED 0.75 · dusty factory 0.65 · outdoor 0.50–0.60</div>
+      <div class="src">EN 12464-1:2021 §5.3.2 · CIBSE LG7</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- B: QUALITY -->
+<section class="atlas-section">
+  <div class="section-head">
+    <h2>B — Quality &amp; comfort</h2>
+    <span class="section-tag">Perception</span>
+  </div>
+  <div class="entry-grid">
+
+    <div class="entry">
+      <span class="idx">B.1</span>
+      <div class="term">Uniformity ratio <em>U₀</em></div>
+      <div class="sym">U₀ = E<sub>min</sub> / E<sub>avg</sub></div>
+      <p>Lowest-to-average illuminance ratio on the reference plane. Low uniformity creates harsh pools and dark zones that force the eye to adapt repeatedly, causing fatigue.</p>
+      <div class="rule"><b>Targets:</b> EN 12464-1 task area ≥ 0.6 · IS 3646 / PPS ≥ 0.8 · circulation ≥ 0.4 · sport ≥ 0.7</div>
+      <div class="src">EN 12464-1:2021 §5.5 · IS 3646:2015 §6</div>
+    </div>
+
+    <div class="entry">
+      <span class="idx">B.2</span>
+      <div class="term">Unified Glare Rating <em>UGR</em></div>
+      <div class="sym">UGR · scale 10–30 · lower = better</div>
+      <p>Standardised measure of discomfort glare. Computed from luminance in the glare zone, background luminance and solid angle. Not shown by the tool — assessed separately from the photometric file.</p>
+      <div class="rule"><b>Limits by task:</b> precision drawing ≤ 16 · office ≤ 19 · retail ≤ 22 · rough factory ≤ 28</div>
+      <div class="src">EN 12464-1:2021 Annex A · CIE 117</div>
+    </div>
+
+    <div class="entry">
+      <span class="idx">B.3</span>
+      <div class="term">Colour rendering index <em>Ra</em></div>
+      <div class="sym">Ra (CRI) · 0–100 · higher = better</div>
+      <p>How accurately a source renders object colours versus a reference illuminant. Critical for retail, food, healthcare and anywhere colour decisions are made under the installed light.</p>
+      <div class="rule"><b>Minimums:</b> general ≥ 80 · retail / grooming ≥ 90 · museum / colour-matching ≥ 95 · surgery ≥ 90 + R9 ≥ 50</div>
+      <div class="src">EN 12464-1:2021 §5.6 · CIE 13.3</div>
+    </div>
+
+    <div class="entry">
+      <span class="idx">B.4</span>
+      <div class="term">Correlated colour temperature <em>CCT</em></div>
+      <div class="sym">CCT · Kelvin (K)</div>
+      <p>Colour appearance of white light from warm (orange) to cool (blue). Not a quality metric — higher K is not better. CCT should match the ambient mood and task: warm for residential, neutral-cool for task work.</p>
+      <div class="rule"><b>Bands:</b> warm white &lt;3000K · neutral 3000–4500K · cool &gt;4500K · daylight 5500–6500K</div>
+      <div class="src">CIE 15:2018 · Kruithof heuristic (non-normative)</div>
+    </div>
+
+    <div class="entry">
+      <span class="idx">B.5</span>
+      <div class="term">Inverse-square law</div>
+      <div class="sym">E = I · cosθ / d²</div>
+      <p>Illuminance from a point source falls as the square of distance — double the distance, quarter the light. The cosθ receiver-tilt penalty halves illuminance on a surface angled 60° from the source.</p>
+      <div class="rule"><b>Ceiling height impact:</b> raising from 2.7 m to 4 m roughly halves work-plane illuminance from identical fixtures (d² factor)</div>
+      <div class="src">Radiometry first principles · IES Handbook 10th ed.</div>
+    </div>
+
+    <div class="entry">
+      <span class="idx">B.6</span>
+      <div class="term">Luminous efficacy <em>η</em></div>
+      <div class="sym">η = Φ / P · lm / W</div>
+      <p>Lumens delivered per watt consumed. Governs energy use. LED technology has pushed efficacy from ~15 lm/W (incandescent) to 80–200 lm/W for modern modules. System luminaire efficacy (SLE) is always lower than lamp efficacy due to optical losses.</p>
+      <div class="rule"><b>Typical SLE:</b> LED downlight 60–90 · LED panel 80–120 · high-bay 100–160 lm/W</div>
+      <div class="src">IEC 62612 · EU Reg. 2019/2020 (ErP)</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- C: LUMEN METHOD -->
+<section class="atlas-section">
+  <div class="section-head">
+    <h2>C — The lumen method</h2>
+    <span class="section-tag">Design calculation</span>
+  </div>
+  <div class="entry-grid">
+
+    <div class="entry entry-wide">
+      <span class="idx">C.1</span>
+      <div class="term">Lumen method — the quick design check</div>
+      <div class="formula">
+        <em>Ēm</em> = (N · Φ · UF · MF) / A
+        <br><span class="cmnt">N = luminaire count &nbsp;·&nbsp; Φ = lm per luminaire &nbsp;·&nbsp; UF = utilisation factor &nbsp;·&nbsp; MF = maintenance factor &nbsp;·&nbsp; A = floor area m²</span>
+        <br><em>N</em> = Ēm · A / (Φ · UF · MF) &nbsp; <span class="cmnt">(rearranged to find required count)</span>
+      </div>
+      <p style="margin-top:10px;font-size:13.5px;color:var(--vellum-dim)">The lumen method includes interreflection from walls and ceiling via UF. The point-by-point tool below deliberately omits interreflection — real rooms with light surfaces read 10–30% higher than the tool's direct-only value. The lumen-method line in the tool panel is the physical upper bound.</p>
+      <div class="src">CIBSE Code for Lighting §3 · EN 12464-1:2021 Annex B</div>
+    </div>
+
+    <div class="entry">
+      <span class="idx">C.2</span>
+      <div class="term">Utilisation factor <em>UF</em></div>
+      <div class="sym">UF · 0.30–0.85 · dimensionless</div>
+      <p>Fraction of total emitted flux that reaches the reference plane. Depends on room cavity ratio, luminaire distribution and surface reflectances (ceiling typically 70%, walls 50%, floor 20%). Looked up from the manufacturer's UF table.</p>
+      <div class="rule"><b>Typical:</b> small dark room 0.35–0.45 · medium office 0.50–0.60 · large open-plan light surfaces 0.60–0.75</div>
+      <div class="src">CIBSE Code for Lighting §3.4 · EN 13032-4</div>
+    </div>
+
+    <div class="entry">
+      <span class="idx">C.3</span>
+      <div class="term">Room cavity ratio <em>RCR</em></div>
+      <div class="sym">RCR = 5 · Hm · (W + D) / (W · D)</div>
+      <p>Single number describing room geometry as seen by a downlighter. Hm = cavity height (ceiling to work-plane), W = width, D = depth. High RCR (narrow, tall room) means more light hits walls → UF falls. Used to enter the UF table.</p>
+      <div class="rule"><b>Example:</b> 10×8 m, H=3 m, WP=0.8 → Hm=2.2, RCR = 5×2.2×18/80 = <b>2.5</b> (medium)</div>
+      <div class="src">CIBSE Code for Lighting §3.4 · IES HB-0-00</div>
+    </div>
+
+  </div>
+</section>
+
+</div><!-- /wrap — standards table has own full-width bg -->
+
+<!-- D: STANDARDS TABLE -->
+<div style="background:var(--booth);border-top:1px solid var(--steel);border-bottom:1px solid var(--steel);padding:38px 0;margin-top:48px">
+  <div class="wrap">
+    <div class="section-head" style="border-color:var(--steel-2)">
+      <h2>D — Interior illuminance targets</h2>
+      <span class="section-tag">EN 12464-1:2021 · CIBSE SLL · IS 3646</span>
+    </div>
+    <p style="color:var(--vellum-dim);font-size:13px;margin:0 0 16px;max-width:72ch">All values are <strong>maintained average illuminance (Ēm)</strong> on the task reference plane. Installed lux = target ÷ MF. Not a substitute for a certified photometric report.</p>
+    <div class="std-wrap">
+      <table class="std-table">
+        <thead>
+          <tr>
+            <th style="width:28%">Space / task</th>
+            <th>Ēm (lx)</th>
+            <th>U₀</th>
+            <th>CCT</th>
+            <th>Ra</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="6" class="cat">Residential</td></tr>
+          <tr><td class="sp">Living room — ambient</td><td class="lx">100–300</td><td>≥ 0.40</td><td class="cct">2700–3000K</td><td class="cri">≥ 80</td><td style="font-size:12px">Layer with task + accent. Full dimming recommended.</td></tr>
+          <tr><td class="sp">Living room — reading</td><td class="lx">500</td><td>—</td><td class="cct">2700–3500K</td><td class="cri">≥ 80</td><td style="font-size:12px">Task lamp at seat; ambient stays at 150–200 lx.</td></tr>
+          <tr><td class="sp">Kitchen — ambient</td><td class="lx">150–200</td><td>≥ 0.40</td><td class="cct">3000–4000K</td><td class="cri">≥ 80</td><td style="font-size:12px">Supplement worktops with under-cabinet strips.</td></tr>
+          <tr><td class="sp">Kitchen — worktop task</td><td class="lx">400–500</td><td>≥ 0.60</td><td class="cct">3000–4000K</td><td class="cri">≥ 90</td><td style="font-size:12px">WP height = worktop surface (~0.9 m). CRI ≥ 90 for food colour.</td></tr>
+          <tr><td class="sp">Bedroom — general</td><td class="lx">100–150</td><td>≥ 0.40</td><td class="cct">2700K</td><td class="cri">≥ 80</td><td style="font-size:12px">Dimmable to &lt; 5 lx for sleep transition.</td></tr>
+          <tr><td class="sp">Bathroom — vanity</td><td class="lx">300</td><td>≥ 0.40</td><td class="cct">3000K</td><td class="cri">≥ 90</td><td style="font-size:12px">Side-lit mirror preferred — top-lit creates under-eye shadows.</td></tr>
+          <tr><td class="sp">Home office / study</td><td class="lx">400–500</td><td>≥ 0.60</td><td class="cct">3500–4000K</td><td class="cri">≥ 80</td><td style="font-size:12px">UGR ≤ 19. Avoid veiling reflections on screens.</td></tr>
+          <tr><td class="sp">Dining room</td><td class="lx">150–200</td><td>≥ 0.40</td><td class="cct">2700–3000K</td><td class="cri">≥ 80</td><td style="font-size:12px">Pendant over table at 300–500 lx supplements ambient.</td></tr>
+          <tr><td colspan="6" class="cat">Hospitality</td></tr>
+          <tr><td class="sp">Hotel lobby — ambient</td><td class="lx">200</td><td>≥ 0.40</td><td class="cct">2700–3500K</td><td class="cri">≥ 80</td><td style="font-size:12px">Layer architectural + reception task. Feature walls 3–10× ambient.</td></tr>
+          <tr><td class="sp">Hotel guest room</td><td class="lx">100–150</td><td>≥ 0.40</td><td class="cct">2700K</td><td class="cri">≥ 80</td><td style="font-size:12px">Bedside reading 300 lx task. Full dimming to 0.</td></tr>
+          <tr><td class="sp">Restaurant — dining</td><td class="lx">100–200</td><td>≥ 0.40</td><td class="cct">2700–3000K</td><td class="cri">≥ 80</td><td style="font-size:12px">Lower ambient for atmosphere; supplement at table level.</td></tr>
+          <tr><td class="sp">Restaurant — kitchen</td><td class="lx">400–500</td><td>≥ 0.60</td><td class="cct">4000K</td><td class="cri">≥ 80</td><td style="font-size:12px">No shadows on prep surfaces. IP54+ near sinks.</td></tr>
+          <tr><td colspan="6" class="cat">Retail &amp; commercial</td></tr>
+          <tr><td class="sp">Retail — general floor</td><td class="lx">400–500</td><td>≥ 0.60</td><td class="cct">3000–4000K</td><td class="cri">≥ 80</td><td style="font-size:12px">Track spots on merchandise 3–5× ambient. UGR ≤ 22.</td></tr>
+          <tr><td class="sp">Retail — feature display</td><td class="lx">750–1500</td><td>—</td><td class="cct">3000K</td><td class="cri">≥ 90</td><td style="font-size:12px">Spot accent. Avoid UV on textiles.</td></tr>
+          <tr><td class="sp">Supermarket — aisle</td><td class="lx">500–750</td><td>≥ 0.60</td><td class="cct">3500–4000K</td><td class="cri">≥ 90</td><td style="font-size:12px">Fresh food zones: R9 ≥ 50 for meat/produce colour.</td></tr>
+          <tr><td colspan="6" class="cat">Cultural &amp; civic</td></tr>
+          <tr><td class="sp">Museum — circulation</td><td class="lx">100–200</td><td>≥ 0.40</td><td class="cct">2700–3500K</td><td class="cri">≥ 90</td><td style="font-size:12px">UV-filtered sources mandatory. Annual exposure budget per CIE 157.</td></tr>
+          <tr><td class="sp">Museum — sensitive artefacts</td><td class="lx">50–150</td><td>—</td><td class="cct">3000K</td><td class="cri">≥ 95</td><td style="font-size:12px">Often ≤ 50 lx for textiles and works on paper.</td></tr>
+          <tr><td class="sp">Classroom</td><td class="lx">300–500</td><td>≥ 0.60</td><td class="cct">4000K</td><td class="cri">≥ 80</td><td style="font-size:12px">UGR ≤ 19. Tunable-white for circadian health emerging.</td></tr>
+          <tr><td class="sp">Gym / sports hall</td><td class="lx">300–500</td><td>≥ 0.70</td><td class="cct">4000K</td><td class="cri">≥ 80</td><td style="font-size:12px">UGR ≤ 25. Check vertical-plane illuminance for ball sports.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TOOL -->
+<div class="wrap">
+  <div class="tool-head">
+    <h2>LUX Studio — interactive illuminance designer</h2>
+    <p>Select a space preset to load room dimensions and a standards-based lux target. Tune the fixture grid, output and distribution to hit the target and meet uniformity. The heatmap and badges update live.</p>
+  </div>
+</div>
+
+<div style="max-width:1180px;margin:0 auto;padding:0 22px">
+<div id="lux-app">
+  <aside id="lux-panel">
+    <div class="lh">
+      <h3>Lux Studio</h3>
+      <div class="ls">Point-by-point · EN 12464-1 / IS 3646 checked live</div>
+    </div>
+
+    <div class="lg">
+      <div class="lgt">Space preset <span class="lgh">— loads room dims + lux target</span></div>
+      <select id="lp"></select>
+      <div class="lr" style="margin-top:10px">
+        <label>Target illuminance</label>
+        <span><input type="number" id="lt" step="10" min="10"> <span class="lv">lx</span></span>
+      </div>
+      <div class="lnote" id="lpn"></div>
+    </div>
+
+    <div class="lg">
+      <div class="lgt">Room dimensions</div>
+      <div class="lr"><label>Width (X)</label><span><input type="number" id="lW" step="0.5" min="1"> <span class="lv">m</span></span></div>
+      <div class="lr"><label>Depth (Z)</label><span><input type="number" id="lD" step="0.5" min="1"> <span class="lv">m</span></span></div>
+      <div class="lr"><label>Ceiling height</label><span><input type="number" id="lH" step="0.1" min="1.5"> <span class="lv">m</span></span></div>
+      <div class="lr">
+        <label>Work-plane height<span style="display:block;font-size:10px;color:#3a4048">desk / floor / worktop</span></label>
+        <span><input type="number" id="lWP" step="0.1" min="0"> <span class="lv">m</span></span>
+      </div>
+    </div>
+
+    <div class="lg">
+      <div class="lgt">Luminaire grid</div>
+      <div class="lr"><label>Fixtures across (X)</label><span><input type="number" id="lc" step="1" min="1" max="14"></span></div>
+      <div class="lr"><label>Fixtures deep (Z)</label><span><input type="number" id="lr2" step="1" min="1" max="14"></span></div>
+      <div class="lfixct" id="lfx">— fixtures</div>
+      <div class="lr" style="margin-top:6px"><label>Flux per fixture</label><span><input type="number" id="llm" step="100" min="50"> <span class="lv">lm</span></span></div>
+      <div class="lr" style="margin-top:10px"><label>Distribution</label></div>
+      <div class="lseg" id="ldist">
+        <button data-d="omni" title="Isotropic bulb: light in all directions">Bulb</button>
+        <button data-d="lambertian" class="on" title="LED panel / diffuser: Lambertian cosine">Panel</button>
+        <button data-d="spot" title="Downlight / spot: concentrated beam cosⁿβ">Spot</button>
+      </div>
+      <div class="lr" style="margin-top:12px">
+        <label>Maintenance factor<span style="display:block;font-size:10px;color:#3a4048">0.80 = clean LED interior</span></label>
+        <span class="lv" id="lmfv">0.80</span>
+      </div>
+      <input type="range" id="lmf" min="0.5" max="1" step="0.01" value="0.8">
+    </div>
+
+    <div class="lg">
+      <div class="lgt">Lumen-method check <span class="lgh">— includes interreflection</span></div>
+      <div class="lr">
+        <label>Utilisation factor<span style="display:block;font-size:10px;color:#3a4048">room geometry + reflectances</span></label>
+        <span class="lv" id="lufv">0.50</span>
+      </div>
+      <input type="range" id="luf" min="0.3" max="0.85" step="0.01" value="0.5">
+      <div class="lr" style="margin-top:4px;font-size:10.5px;color:#5c6771">
+        <span style="font-family:ui-monospace,Consolas,monospace">Ē ≈ N·Φ·UF·MF / A</span>
+        <span class="lv" id="lest" style="font-size:12px">— lx</span>
+      </div>
+      <div class="lr" style="margin-top:10px"><label>Colour map</label></div>
+      <div class="lseg" id="lcmap">
+        <button data-c="viridis" class="on">Viridis</button>
+        <button data-c="cividis">Cividis</button>
+      </div>
+      <div class="lr" style="margin-top:8px"><label>Map fill</label></div>
+      <div class="lseg" id="linterp">
+        <button data-i="smooth" class="on">Smooth</button>
+        <button data-i="cells">Cells</button>
+      </div>
+    </div>
+
+    <div class="lfoot">
+      Direct point-by-point only — no wall/ceiling interreflection. Lumen-method estimate bounds the upper limit. U₀ = min ÷ avg; EN 12464-1 ≥ 0.6; IS/PPS ≥ 0.8. Not a substitute for a certified report.
+    </div>
+  </aside>
+
+  <main id="lux-view">
+    <canvas id="lux-gl"></canvas>
+    <div id="lux-hud">
+      <div class="lstat"><div class="k">Average</div><div class="v"><span id="sa">—</span><span class="u">lx</span></div></div>
+      <div class="lstat"><div class="k">Min</div><div class="v"><span id="sn">—</span><span class="u">lx</span></div></div>
+      <div class="lstat"><div class="k">Max</div><div class="v"><span id="sx">—</span><span class="u">lx</span></div></div>
+      <div class="lstat"><div class="k">Uniformity U₀</div><div class="v"><span id="su">—</span></div></div>
+      <div class="lstat"><div class="k">Area ≥ target</div><div class="v"><span id="sp">—</span><span class="u">%</span></div></div>
+    </div>
+    <div id="lux-badges"></div>
+    <div id="lux-legend">
+      <div class="lgtitle">Illuminance (lx)</div>
+      <div id="lux-bar"><div id="lux-tgtmark"><div id="lux-tgtlbl"></div></div></div>
+      <div id="lux-ticks"></div>
+    </div>
+    <div class="lhint">drag · orbit &nbsp;|&nbsp; scroll · zoom &nbsp;|&nbsp; right-drag · pan</div>
+  </main>
+</div>
+</div>
+
+<div class="wrap">
+
+<!-- E: READING THE OUTPUT -->
+<section class="atlas-section">
+  <div class="section-head">
+    <h2>E — Reading the tool output</h2>
+    <span class="section-tag">Interpretation</span>
+  </div>
+  <div class="out-grid">
+    <div class="out-card">
+      <div class="klabel">Average (Ēm)</div>
+      <div class="kval" style="color:var(--iso)">247 lx</div>
+      <p>Mean illuminance across the work plane. Compare directly against the maintained target. EN 12464-1 specifies this — not the max, not the centre-point.</p>
+    </div>
+    <div class="out-card">
+      <div class="klabel">Minimum (Emin)</div>
+      <div class="kval">98 lx</div>
+      <p>Darkest point on the grid. Used to compute U₀. Consistently low at the perimeter means fixtures are spaced too far from the wall or each other.</p>
+    </div>
+    <div class="out-card">
+      <div class="klabel">Uniformity U₀</div>
+      <div class="kval" style="color:var(--draft)">0.40</div>
+      <p>Min ÷ avg. Below 0.6 is visually patchy — users can see bright pools and dark gaps. Reduce fixture spacing or add rows/columns until U₀ ≥ 0.6.</p>
+    </div>
+    <div class="out-card">
+      <div class="klabel">Area ≥ target %</div>
+      <div class="kval">62%</div>
+      <p>Fraction of the work plane meeting the maintained target. A well-designed scheme targets ≥ 90% — perimeter dead zones are acceptable if the task area is covered.</p>
+    </div>
+    <div class="out-card">
+      <div class="klabel">Lumen-method estimate</div>
+      <div class="kval" style="color:var(--vellum-mute)">~310 lx</div>
+      <p>Upper bound including interreflection. The 3-D heatmap omits this — real rooms with light walls and ceiling read somewhere between the two values.</p>
+    </div>
+    <div class="out-card">
+      <div class="klabel">Pass / Fail badges</div>
+      <div class="kval" style="font-size:14px;color:var(--comb)">Avg · U₀</div>
+      <p>Green on both = design meets standard. U₀ fail with Avg pass = distribution problem, not total flux — add fixtures or reduce spacing.</p>
+    </div>
+  </div>
+</section>
+
+<!-- F: HEURISTICS -->
+<section class="atlas-section">
+  <div class="section-head">
+    <h2>F — Placement heuristics</h2>
+    <span class="section-tag">Rules of thumb</span>
+  </div>
+  <div class="heur-list">
+    <div class="heur">
+      <div class="rn">F.1</div>
+      <h4>The 1.5H spacing rule</h4>
+      <p>Maximum centre-to-centre fixture spacing = 1.5 × mounting height (ceiling to work-plane). Exceeding this almost always fails U₀ ≥ 0.6 for a regular grid.</p>
+      <div class="rf">S<sub>max</sub> = 1.5 × Hm</div>
+    </div>
+    <div class="heur">
+      <div class="rn">F.2</div>
+      <h4>Wall offset — half spacing</h4>
+      <p>First fixture row should be no more than 0.5× the inter-fixture spacing from the perimeter wall. Use 0.3× for rooms where tasks occur near walls (kitchens, workbenches).</p>
+      <div class="rf">wall offset ≤ 0.5 × S</div>
+    </div>
+    <div class="heur">
+      <div class="rn">F.3</div>
+      <h4>The 3:1 accent ratio</h4>
+      <p>Feature or display lighting should be 3–10× the ambient level. Below 3× it reads flat; above 15× it forces uncomfortable visual adaptation.</p>
+      <div class="rf">E<sub>accent</sub> = 3–10 × E<sub>ambient</sub></div>
+    </div>
+    <div class="heur">
+      <div class="rn">F.4</div>
+      <h4>CCT paired to illuminance</h4>
+      <p>The Kruithof heuristic (non-normative): dim rooms feel natural at warm CCT; bright rooms at higher CCT. Bright + warm reads yellow; dim + cool reads clinical.</p>
+      <div class="rf">&lt;300 lx → 2700–3000K &nbsp;·&nbsp; ≥300 lx → 3000–4000K+</div>
+    </div>
+    <div class="heur">
+      <div class="rn">F.5</div>
+      <h4>Design above maintained target</h4>
+      <p>Always over-design by the MF. A 400 lx maintained target at MF 0.80 needs 500 lx at install — otherwise the room is already below target on the first day.</p>
+      <div class="rf">E<sub>initial</sub> = Ēm ÷ MF</div>
+    </div>
+    <div class="heur">
+      <div class="rn">F.6</div>
+      <h4>Vertical-plane check for social spaces</h4>
+      <p>The work-plane calculation covers horizontal surfaces only. For hospitality, also check vertical illuminance on faces at 1.2 m height — aim for 50–150 lx for comfortable social perception.</p>
+      <div class="rf">E<sub>v</sub> at 1.2 m ≥ 50 lx (CIBSE LG2)</div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--vellum-mute)">Design Atlas · Interior Design · LUX Matrix</div>
+    <p>Standards: EN 12464-1:2021 (indoor workplaces), IS 3646 (Part 1):2015, CIBSE Code for Lighting 2012. Photometry: inverse-square law per IES Lighting Handbook 10th ed. Direct illuminance only — no interreflection model. Not a substitute for a certified photometric report: for tender or compliance engage a qualified lighting designer (IALD / MSLL / ILP).</p>
+    <p style="margin-top:8px"><a href="../index.html">← Back to Design Atlas</a></p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ============================================================
+// LUX STUDIO — Interior Design Edition
+// Self-contained. IDs short to avoid collision with atlas CSS.
+// ============================================================
+
+const PRESETS=[
+  {g:"Residential",items:[
+    {n:"Living room — ambient",      lx:200, W:5,  D:4,   H:2.7,WP:0,   c:2,r:2,lm:3000,note:"EN 12464-1: 100–300 lx. 2700–3000K warm white. Layer with task and accent lighting; dimming strongly recommended."},
+    {n:"Living room — reading task", lx:500, W:5,  D:4,   H:2.7,WP:0.8, c:2,r:2,lm:3600,note:"Task lamp over reading seat. Keep ambient at 150–200 lx; a directed floor lamp supplements the general scheme."},
+    {n:"Kitchen — ambient",          lx:200, W:4,  D:3,   H:2.7,WP:0.8, c:2,r:2,lm:2800,note:"150–200 lx ambient. Supplement worktops separately with under-cabinet LED strips targeting 400–500 lx on the surface."},
+    {n:"Kitchen — worktop task",     lx:500, W:4,  D:3,   H:2.7,WP:0.9, c:2,r:2,lm:4000,note:"Worktop surface at ~0.9 m. 400–500 lx; CRI ≥90 for food-colour accuracy. 3000–4000K neutral-warm."},
+    {n:"Bedroom — general",          lx:150, W:4,  D:3.5, H:2.7,WP:0,   c:2,r:1,lm:2000,note:"100–200 lx general. 2700K warm. Full dimming to ≤5 lx for sleep transition. Bedside reading supplement at 300 lx."},
+    {n:"Bathroom — vanity",          lx:300, W:2.5,D:2,   H:2.6,WP:0.9, c:1,r:1,lm:2800,note:"200–500 lx. CRI ≥90 mandatory for grooming accuracy. Side-lit mirror preferred — top-lit creates under-eye shadows. 3000K."},
+    {n:"Home office / study",        lx:500, W:3.5,D:3,   H:2.7,WP:0.75,c:2,r:2,lm:3600,note:"300–500 lx. 4000K neutral. UGR ≤19 — avoid veiling reflections on screens. U₀ ≥0.6 across the desk area."},
+    {n:"Dining room",                lx:200, W:4,  D:4,   H:2.7,WP:0.75,c:1,r:1,lm:3600,note:"150–200 lx ambient. A pendant over the table at 300–500 lx supplements. 2700–3000K warm for appetite and atmosphere."},
+  ]},
+  {g:"Hospitality",items:[
+    {n:"Hotel lobby — ambient",      lx:200, W:12, D:8,   H:4,  WP:0,   c:3,r:2,lm:5000,note:"200–300 lx ambient. Layered: architectural accent + reception task. Warm 2700–3500K. Feature walls 3–10× ambient."},
+    {n:"Hotel lobby — reception",    lx:400, W:12, D:8,   H:4,  WP:0.8, c:3,r:2,lm:6000,note:"300–500 lx on desk surface. Focused task light on the counter — not the ceiling void above it."},
+    {n:"Hotel guest room",           lx:150, W:6,  D:4,   H:2.8,WP:0,   c:2,r:2,lm:2000,note:"100–200 lx ambient. Bedside task 300 lx. 2700K. Full dimming to 0. Avoid direct glare from the bed position."},
+    {n:"Restaurant — dining",        lx:150, W:12, D:8,   H:3.2,WP:0.75,c:3,r:2,lm:2000,note:"100–200 lx ambient for atmosphere. Pendants or candles supplement table level. 2700K; CRI ≥80 for food colour."},
+    {n:"Restaurant — kitchen/pass",  lx:500, W:8,  D:6,   H:3,  WP:0.9, c:3,r:2,lm:5000,note:"400–500 lx on prep surfaces. No shadows on cutting boards. 4000K. IP54+ fittings near sinks. CRI ≥80."},
+  ]},
+  {g:"Retail & commercial",items:[
+    {n:"Retail — general floor",     lx:500, W:20, D:15,  H:3.5,WP:0,   c:5,r:4,lm:5000,note:"400–750 lx general. Track spots on merchandise 3–5× ambient. UGR ≤22. 3000–4000K; CRI ≥80."},
+    {n:"Retail — feature display",   lx:1000,W:4,  D:3,   H:3.5,WP:0.9, c:2,r:2,lm:5000,note:"750–1500 lx accent. Spot luminaires; CRI ≥90 for accurate colour rendering. Avoid UV on textiles and sensitive merchandise."},
+    {n:"Supermarket — aisle",        lx:750, W:20, D:15,  H:4,  WP:0.9, c:5,r:4,lm:8000,note:"500–1000 lx. Fresh-food zones: CRI ≥90 + R9 ≥50 for meat and produce colour accuracy. 3500–4000K."},
+  ]},
+  {g:"Cultural & civic",items:[
+    {n:"Museum — circulation",       lx:150, W:15, D:12,  H:5,  WP:0,   c:3,r:3,lm:5000,note:"100–200 lx ambient. UV-filtered sources mandatory near all artefacts. Annual lux-hour exposure budget per CIE 157."},
+    {n:"Museum — sensitive artefacts",lx:75, W:8,  D:6,   H:4,  WP:0.9, c:2,r:2,lm:1200,note:"≤150 lx; often 50 lx for textiles and works on paper. CRI ≥95. Fibre-optic or UV-filtered LED only."},
+    {n:"Classroom",                  lx:400, W:9,  D:7,   H:3,  WP:0.8, c:3,r:3,lm:5000,note:"300–500 lx. 4000K. UGR ≤19. U₀ ≥0.6 per EN 12464-1. Tunable-white for circadian health is emerging practice."},
+    {n:"Gym / sports hall",          lx:400, W:20, D:14,  H:7,  WP:0,   c:4,r:3,lm:10000,note:"300–500 lx. UGR ≤25. U₀ ≥0.7. High-mount luminaires; check vertical-plane illuminance for ball sports."},
+  ]},
+];
+
+const CMAPS={
+  viridis:[[68,1,84],[72,40,120],[62,74,137],[49,104,142],[38,130,142],[31,158,137],[53,183,121],[110,206,88],[181,222,43],[253,231,37]],
+  cividis:[[0,32,76],[0,42,102],[42,59,99],[75,77,95],[104,96,94],[135,116,88],[168,138,75],[203,162,58],[238,188,35],[255,234,70]],
+};
+function sc(map,t){t=Math.max(0,Math.min(1,t));const s=t*(map.length-1),i=Math.floor(s),f=s-i,a=map[i],b=map[Math.min(i+1,map.length-1)];return[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f,a[2]+(b[2]-a[2])*f];}
+function gcss(name){const m=CMAPS[name];return'linear-gradient(90deg,'+m.map((c,i)=>`rgb(${c[0]},${c[1]},${c[2]}) ${(i/(m.length-1)*100).toFixed(0)}%`).join(',')+')';}
+
+// State — defaults overwritten by first preset
+const S={target:200,W:5,D:4,H:2.7,WP:0,cols:2,rows:2,lm:3000,dist:'lambertian',mf:0.8,uf:0.5,cmap:'viridis',interp:'smooth'};
+const NX=28,NY=28;
+let lf=new Float32Array(NX*NY),scaleMax=300;
+
+function fixtureModel(){
+  const F=S.lm,n=12;
+  if(S.dist==='omni')return{I0:F/(4*Math.PI),n:0};
+  if(S.dist==='spot')return{I0:F*(n+1)/(2*Math.PI),n};
+  return{I0:F/Math.PI,n:1};
+}
+function fixPos(){const P=[];for(let r=0;r<S.rows;r++)for(let c=0;c<S.cols;c++)P.push([-S.W/2+(c+0.5)/S.cols*S.W,-S.D/2+(r+0.5)/S.rows*S.D]);return P;}
+function compute(){
+  const h=Math.max(0.05,S.H-S.WP),m=fixtureModel(),P=fixPos();
+  let mn=Infinity,mx=0,sum=0;
+  for(let j=0;j<NY;j++){const z=-S.D/2+(j+0.5)/NY*S.D;
+    for(let i=0;i<NX;i++){const x=-S.W/2+(i+0.5)/NX*S.W;
+      let E=0;for(let k=0;k<P.length;k++){const dx=x-P[k][0],dz=z-P[k][1],d=Math.sqrt(h*h+dx*dx+dz*dz);E+=S.mf*m.I0*Math.pow(h,m.n+1)/Math.pow(d,m.n+3);}
+      lf[j*NX+i]=E;if(E<mn)mn=E;if(E>mx)mx=E;sum+=E;}}
+  const avg=sum/(NX*NY),U0=avg>0?mn/avg:0;
+  let ok=0;for(let p=0;p<lf.length;p++)if(lf[p]>=S.target)ok++;
+  return{mn,mx,avg,U0,pct:100*ok/lf.length};
+}
+
+const canvas=document.getElementById('lux-gl');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x0e1114);
+const camera=new THREE.PerspectiveCamera(45,1,0.1,500);
+const hmc=document.createElement('canvas');hmc.width=NX;hmc.height=NY;
+const hmx=hmc.getContext('2d');
+const hmt=new THREE.CanvasTexture(hmc);hmt.minFilter=THREE.LinearFilter;
+let rg=null;
+
+const orb={theta:0.9,phi:1.02,radius:16,target:new THREE.Vector3()};
+function ac(){const{theta,phi,radius,target}=orb;camera.position.set(target.x+radius*Math.sin(phi)*Math.sin(theta),target.y+radius*Math.cos(phi),target.z+radius*Math.sin(phi)*Math.cos(theta));camera.lookAt(target);}
+(function(){let mode=0,px=0,py=0;
+  canvas.addEventListener('pointerdown',e=>{mode=(e.button===2||e.button===1)?2:1;px=e.clientX;py=e.clientY;canvas.setPointerCapture(e.pointerId);});
+  canvas.addEventListener('pointerup',()=>mode=0);
+  canvas.addEventListener('pointermove',e=>{if(!mode)return;const dx=e.clientX-px,dy=e.clientY-py;px=e.clientX;py=e.clientY;
+    if(mode===1){orb.theta-=dx*0.006;orb.phi=Math.max(0.12,Math.min(Math.PI-0.12,orb.phi-dy*0.006));}
+    else{const pan=orb.radius*0.0016,right=new THREE.Vector3(Math.cos(orb.theta),0,-Math.sin(orb.theta));orb.target.addScaledVector(right,-dx*pan);orb.target.y+=dy*pan;}ac();});
+  canvas.addEventListener('wheel',e=>{e.preventDefault();orb.radius=Math.max(3,Math.min(80,orb.radius*(1+e.deltaY*0.0012)));ac();},{passive:false});
+  canvas.addEventListener('contextmenu',e=>e.preventDefault());
+})();
+
+function buildScene(){
+  if(rg)scene.remove(rg);rg=new THREE.Group();
+  const{W,D,H,WP}=S;
+  rg.add(new THREE.GridHelper(Math.max(W,D),Math.round(Math.max(W,D)),0x2a323b,0x1c2229));
+  const e=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(W,H,D)),new THREE.LineBasicMaterial({color:0x39434e}));e.position.y=H/2;rg.add(e);
+  const fl=new THREE.Mesh(new THREE.PlaneGeometry(W,D),new THREE.MeshBasicMaterial({color:0x12161a}));fl.rotation.x=-Math.PI/2;fl.position.y=0.002;rg.add(fl);
+  const pl=new THREE.Mesh(new THREE.PlaneGeometry(W,D),new THREE.MeshBasicMaterial({map:hmt}));pl.rotation.x=-Math.PI/2;pl.position.y=WP;rg.add(pl);
+  const we=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(W,D)),new THREE.LineBasicMaterial({color:0x4a5560}));we.rotation.x=-Math.PI/2;we.position.y=WP+0.001;rg.add(we);
+  const bg=new THREE.SphereGeometry(0.09,16,12),bm=new THREE.MeshBasicMaterial({color:0xf6a94a}),hg=new THREE.SphereGeometry(0.16,16,12),hm2=new THREE.MeshBasicMaterial({color:0xf6a94a,transparent:true,opacity:0.18});
+  fixPos().forEach(p=>{const b=new THREE.Mesh(bg,bm);b.position.set(p[0],H-0.05,p[1]);rg.add(b);const ha=new THREE.Mesh(hg,hm2);ha.position.copy(b.position);rg.add(ha);const ln=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(p[0],H-0.05,p[1]),new THREE.Vector3(p[0],WP,p[1])]),new THREE.LineBasicMaterial({color:0x3a2f1c}));rg.add(ln);});
+  scene.add(rg);orb.target.set(0,H*0.42,0);ac();
+}
+function paintMap(){const img=hmx.createImageData(NX,NY),map=CMAPS[S.cmap]||CMAPS.viridis;for(let p=0;p<NX*NY;p++){const c=sc(map,lf[p]/scaleMax);img.data[p*4]=c[0];img.data[p*4+1]=c[1];img.data[p*4+2]=c[2];img.data[p*4+3]=255;}hmx.putImageData(img,0,0);hmt.magFilter=S.interp==='cells'?THREE.NearestFilter:THREE.LinearFilter;hmt.needsUpdate=true;}
+function rsz(){const w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width!==w||canvas.height!==h){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}}
+(function loop(){rsz();renderer.render(scene,camera);requestAnimationFrame(loop);})();
+function nc(v){const p=Math.pow(10,Math.floor(Math.log10(v))),n=v/p,s=n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10;return s*p;}
+const $=id=>document.getElementById(id);
+
+function refresh(rebuild){
+  if(rebuild)buildScene();
+  const st=compute();
+  scaleMax=nc(Math.max(st.mx,S.target)*1.02);
+  paintMap();
+  const f=v=>v>=1000?Math.round(v).toLocaleString():Math.round(v);
+  $('sa').textContent=f(st.avg);$('sn').textContent=f(st.mn);$('sx').textContent=f(st.mx);$('su').textContent=st.U0.toFixed(2);$('sp').textContent=Math.round(st.pct);
+  $('lest').textContent=Math.round(S.cols*S.rows*S.lm*S.uf*S.mf/(S.W*S.D)).toLocaleString()+' lx';
+  $('lfx').textContent=S.cols+' × '+S.rows+' = '+(S.cols*S.rows)+' fixtures';
+  const avgOK=st.avg>=S.target,uOK=st.U0>=0.6;
+  $('lux-badges').innerHTML=
+    `<div class="lbadge ${avgOK?'pass':'fail'}"><span class="dot"></span>Avg ${f(st.avg)} lx ${avgOK?'≥':'<'} ${S.target} lx</div>`+
+    `<div class="lbadge ${uOK?'pass':'fail'}"><span class="dot"></span>U₀ ${st.U0.toFixed(2)} ${uOK?'≥':'<'} 0.60</div>`;
+  $('lux-bar').style.background=gcss(S.cmap);
+  const tk=$('lux-ticks');tk.innerHTML='';
+  for(let t=0;t<=4;t++){const sp=document.createElement('span');sp.style.left=(t*25)+'%';sp.textContent=Math.round(scaleMax*t/4).toLocaleString();tk.appendChild(sp);}
+  const tp=Math.max(0,Math.min(100,S.target/scaleMax*100));
+  $('lux-tgtmark').style.left=tp+'%';$('lux-tgtlbl').textContent='target '+S.target;
+}
+
+// Preset menu
+(function(){
+  const sel=$('lp');
+  PRESETS.forEach(g=>{const og=document.createElement('optgroup');og.label=g.g;g.items.forEach(it=>{const o=document.createElement('option');o.textContent=it.n;o.value=it.n;Object.assign(o.dataset,{lx:it.lx,note:it.note,rw:it.W,rd:it.D,rh:it.H,wp:it.WP,c:it.c,r:it.r,lm:it.lm});og.appendChild(o);});sel.appendChild(og);});
+  function ap(o){
+    S.target=+o.dataset.lx;$('lt').value=S.target;$('lpn').textContent=o.dataset.note;
+    S.W=+o.dataset.rw;$('lW').value=S.W;S.D=+o.dataset.rd;$('lD').value=S.D;
+    S.H=+o.dataset.rh;$('lH').value=S.H;S.WP=+o.dataset.wp;$('lWP').value=S.WP;
+    S.cols=+o.dataset.c;$('lc').value=S.cols;S.rows=+o.dataset.r;$('lr2').value=S.rows;
+    S.lm=+o.dataset.lm;$('llm').value=S.lm;
+    refresh(true);
+  }
+  sel.addEventListener('change',()=>ap(sel.selectedOptions[0]));
+  ap(sel.options[0]);
+})();
+
+function bn(id,key,rebuild){const el=$(id);el.value=S[key];el.addEventListener('input',()=>{const v=parseFloat(el.value);if(!isNaN(v)){S[key]=v;refresh(rebuild);}});}
+bn('lt','target',false);bn('lW','W',true);bn('lD','D',true);bn('lH','H',true);bn('lWP','WP',true);bn('lc','cols',true);bn('lr2','rows',true);bn('llm','lm',false);
+$('lmf').addEventListener('input',e=>{S.mf=+e.target.value;$('lmfv').textContent=S.mf.toFixed(2);refresh(false);});
+$('luf').addEventListener('input',e=>{S.uf=+e.target.value;$('lufv').textContent=S.uf.toFixed(2);refresh(false);});
+function bs(wid,attr,key,rebuild){document.querySelectorAll('#'+wid+' button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#'+wid+' button').forEach(x=>x.classList.remove('on'));b.classList.add('on');S[key]=b.dataset[attr];refresh(rebuild);}));}
+bs('ldist','d','dist',false);bs('lcmap','c','cmap',false);bs('linterp','i','interp',false);
+</script>
+</body>
+</html>
