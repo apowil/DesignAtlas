@@ -474,7 +474,7 @@ footer p{max-width:74ch;margin:8px 0 0}
     </div>
 
     <div class="lfoot">
-      Direct point-by-point only — no wall/ceiling interreflection. Lumen-method estimate bounds the upper limit. U₀ = min ÷ avg; EN 12464-1 ≥ 0.6; IS/PPS ≥ 0.8. Not a substitute for a certified report.
+      Direct point-by-point only — no wall/ceiling interreflection; the lumen-method estimate bounds the upper limit. Statistics are taken over the <b style="color:#f6a94a;font-weight:500">amber task area</b> (perimeter band excluded, per EN 12464-1) — the heatmap still shows the whole plane. U₀ = min ÷ avg; EN 12464-1 ≥ 0.6, IS/PPS ≥ 0.8. Not a substitute for a certified report.
     </div>
   </aside>
 
@@ -489,7 +489,7 @@ footer p{max-width:74ch;margin:8px 0 0}
     </div>
     <div id="lux-badges"></div>
     <div id="lux-legend">
-      <div class="lgtitle">Illuminance (lx)</div>
+      <div class="lgtitle" id="lux-lgtitle">Illuminance (lx)</div>
       <div id="lux-bar"><div id="lux-tgtmark"><div id="lux-tgtlbl"></div></div></div>
       <div id="lux-ticks"></div>
     </div>
@@ -653,16 +653,23 @@ function fixtureModel(){
   return{I0:F/Math.PI,n:1};
 }
 function fixPos(){const P=[];for(let r=0;r<S.rows;r++)for(let c=0;c<S.cols;c++)P.push([-S.W/2+(c+0.5)/S.cols*S.W,-S.D/2+(r+0.5)/S.rows*S.D]);return P;}
+// EN 12464-1 evaluates the *task area*, not the raw room footprint: a perimeter
+// band is excluded, because a direct-only model always reads dark against a wall
+// (no interreflection) and would fail U0 on every otherwise-sound layout.
+function bandWidth(){return Math.min(0.5,S.W*0.15,S.D*0.15);}
 function compute(){
   const h=Math.max(0.05,S.H-S.WP),m=fixtureModel(),P=fixPos();
-  let mn=Infinity,mx=0,sum=0;
+  const b=bandWidth(),xl=S.W/2-b,zl=S.D/2-b;
+  let mn=Infinity,mx=0,sum=0,n=0,ok=0;
   for(let j=0;j<NY;j++){const z=-S.D/2+(j+0.5)/NY*S.D;
     for(let i=0;i<NX;i++){const x=-S.W/2+(i+0.5)/NX*S.W;
       let E=0;for(let k=0;k<P.length;k++){const dx=x-P[k][0],dz=z-P[k][1],d=Math.sqrt(h*h+dx*dx+dz*dz);E+=S.mf*m.I0*Math.pow(h,m.n+1)/Math.pow(d,m.n+3);}
-      lf[j*NX+i]=E;if(E<mn)mn=E;if(E>mx)mx=E;sum+=E;}}
-  const avg=sum/(NX*NY),U0=avg>0?mn/avg:0;
-  let ok=0;for(let p=0;p<lf.length;p++)if(lf[p]>=S.target)ok++;
-  return{mn,mx,avg,U0,pct:100*ok/lf.length};
+      lf[j*NX+i]=E;                                  // heatmap always shows the full plane
+      if(Math.abs(x)<=xl&&Math.abs(z)<=zl){          // stats only over the task area
+        if(E<mn)mn=E;if(E>mx)mx=E;sum+=E;n++;if(E>=S.target)ok++;}}}
+  if(!n){mn=0;mx=0;sum=0;n=1;}                       // degenerate room — avoid NaN
+  const avg=sum/n,U0=avg>0?mn/avg:0;
+  return{mn,mx,avg,U0,pct:100*ok/n,band:b};
 }
 
 const canvas=document.getElementById('lux-gl');
@@ -695,6 +702,9 @@ function buildScene(){
   const fl=new THREE.Mesh(new THREE.PlaneGeometry(W,D),new THREE.MeshBasicMaterial({color:0x12161a}));fl.rotation.x=-Math.PI/2;fl.position.y=0.002;rg.add(fl);
   const pl=new THREE.Mesh(new THREE.PlaneGeometry(W,D),new THREE.MeshBasicMaterial({map:hmt}));pl.rotation.x=-Math.PI/2;pl.position.y=WP;rg.add(pl);
   const we=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(W,D)),new THREE.LineBasicMaterial({color:0x4a5560}));we.rotation.x=-Math.PI/2;we.position.y=WP+0.001;rg.add(we);
+  // amber inset = the task area the statistics are taken over
+  const bw=bandWidth();
+  if(W-2*bw>0.2&&D-2*bw>0.2){const ta=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(W-2*bw,D-2*bw)),new THREE.LineBasicMaterial({color:0xf6a94a,transparent:true,opacity:0.5}));ta.rotation.x=-Math.PI/2;ta.position.y=WP+0.003;rg.add(ta);}
   const bg=new THREE.SphereGeometry(0.09,16,12),bm=new THREE.MeshBasicMaterial({color:0xf6a94a}),hg=new THREE.SphereGeometry(0.16,16,12),hm2=new THREE.MeshBasicMaterial({color:0xf6a94a,transparent:true,opacity:0.18});
   fixPos().forEach(p=>{const b=new THREE.Mesh(bg,bm);b.position.set(p[0],H-0.05,p[1]);rg.add(b);const ha=new THREE.Mesh(hg,hm2);ha.position.copy(b.position);rg.add(ha);const ln=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(p[0],H-0.05,p[1]),new THREE.Vector3(p[0],WP,p[1])]),new THREE.LineBasicMaterial({color:0x3a2f1c}));rg.add(ln);});
   scene.add(rg);orb.target.set(0,H*0.42,0);ac();
@@ -718,6 +728,7 @@ function refresh(rebuild){
   $('lux-badges').innerHTML=
     `<div class="lbadge ${avgOK?'pass':'fail'}"><span class="dot"></span>Avg ${f(st.avg)} lx ${avgOK?'≥':'<'} ${S.target} lx</div>`+
     `<div class="lbadge ${uOK?'pass':'fail'}"><span class="dot"></span>U₀ ${st.U0.toFixed(2)} ${uOK?'≥':'<'} 0.60</div>`;
+  $('lux-lgtitle').textContent='Illuminance (lx) — stats over task area, '+st.band.toFixed(2)+' m perimeter excluded';
   $('lux-bar').style.background=gcss(S.cmap);
   const tk=$('lux-ticks');tk.innerHTML='';
   for(let t=0;t<=4;t++){const sp=document.createElement('span');sp.style.left=(t*25)+'%';sp.textContent=Math.round(scaleMax*t/4).toLocaleString();tk.appendChild(sp);}
