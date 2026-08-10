@@ -461,6 +461,15 @@ footer p{max-width:74ch;margin:8px 0 0}
         <span style="font-family:ui-monospace,Consolas,monospace">Ē ≈ N·Φ·UF·MF / A</span>
         <span class="lv" id="lest" style="font-size:12px">— lx</span>
       </div>
+      <div class="lr" style="margin-top:10px"><label>Wall / ceiling bounce</label></div>
+      <div class="lseg" id="linter">
+        <button data-x="on" class="on" title="Direct + uniform indirect (split-flux) — how a real room behaves">Include</button>
+        <button data-x="off" title="Direct component only — the raw point-by-point field">Direct only</button>
+      </div>
+      <div class="lr" style="margin-top:4px;font-size:10.5px;color:#5c6771">
+        <span>indirect component</span><span class="lv" id="lind" style="font-size:12px">— lx</span>
+      </div>
+
       <div class="lr" style="margin-top:10px"><label>Colour map</label></div>
       <div class="lseg" id="lcmap">
         <button data-c="viridis" class="on">Viridis</button>
@@ -474,7 +483,7 @@ footer p{max-width:74ch;margin:8px 0 0}
     </div>
 
     <div class="lfoot">
-      Direct point-by-point only — no wall/ceiling interreflection; the lumen-method estimate bounds the upper limit. Statistics are taken over the <b style="color:#f6a94a;font-weight:500">amber task area</b> (perimeter band excluded, per EN 12464-1) — the heatmap still shows the whole plane. U₀ = min ÷ avg; EN 12464-1 ≥ 0.6, IS/PPS ≥ 0.8. Not a substitute for a certified report.
+      Point-by-point direct component plus a uniform split-flux indirect term (toggle above). Statistics are taken over the <b style="color:#f6a94a;font-weight:500">amber task area</b> — perimeter band excluded, per EN 12464-1 — while the heatmap shows the whole plane. U₀ = min ÷ avg; EN 12464-1 ≥ 0.6, IS/PPS ≥ 0.8. A uniform indirect term is an approximation: real interreflection falls off near corners. Not a substitute for a certified photometric report.
     </div>
   </aside>
 
@@ -530,7 +539,7 @@ footer p{max-width:74ch;margin:8px 0 0}
     <div class="out-card">
       <div class="klabel">Lumen-method estimate</div>
       <div class="kval" style="color:var(--vellum-mute)">~310 lx</div>
-      <p>Upper bound including interreflection. The 3-D heatmap omits this — real rooms with light walls and ceiling read somewhere between the two values.</p>
+      <p>Whole-room average including interreflection. With bounce enabled the heatmap is anchored to this figure; the gap between it and the direct average is the indirect component, shown beneath the UF slider.</p>
     </div>
     <div class="out-card">
       <div class="klabel">Pass / Fail badges</div>
@@ -645,7 +654,7 @@ function sc(map,t){t=Math.max(0,Math.min(1,t));const s=t*(map.length-1),i=Math.f
 function gcss(name){const m=CMAPS[name];return'linear-gradient(90deg,'+m.map((c,i)=>`rgb(${c[0]},${c[1]},${c[2]}) ${(i/(m.length-1)*100).toFixed(0)}%`).join(',')+')';}
 
 // State — defaults overwritten by first preset
-const S={target:200,W:5,D:4,H:2.7,WP:0,cols:2,rows:2,lm:3000,dist:'lambertian',mf:0.8,uf:0.5,cmap:'viridis',interp:'smooth'};
+const S={target:200,W:5,D:4,H:2.7,WP:0,cols:2,rows:2,lm:3000,dist:'lambertian',mf:0.8,uf:0.5,inter:'on',cmap:'viridis',interp:'smooth'};
 const NX=28,NY=28;
 let lf=new Float32Array(NX*NY),scaleMax=300;
 
@@ -662,17 +671,32 @@ function fixPos(){const P=[];for(let r=0;r<S.rows;r++)for(let c=0;c<S.cols;c++)P
 function bandWidth(){return Math.min(0.5,S.W*0.15,S.D*0.15);}
 function compute(){
   const h=Math.max(0.05,S.H-S.WP),m=fixtureModel(),P=fixPos();
+  // pass 1 — direct component, point by point
+  let full=0;
+  for(let j=0;j<NY;j++){const z=-S.D/2+(j+0.5)/NY*S.D;
+    for(let i=0;i<NX;i++){const x=-S.W/2+(i+0.5)/NX*S.W;
+      let E=0;for(let k=0;k<P.length;k++){const dx=x-P[k][0],dz=z-P[k][1],d=Math.sqrt(h*h+dx*dx+dz*dz);E+=S.mf*m.I0*Math.pow(h,m.n+1)/Math.pow(d,m.n+3);}
+      lf[j*NX+i]=E;full+=E;}}
+  const dirAvg=full/(NX*NY);
+  // Split-flux interreflection. The lumen method's average already contains the
+  // light that bounces off walls and ceiling; whatever it has over the direct
+  // average IS that interreflected component, and it lands on the work plane
+  // essentially uniformly (the standard CIBSE assumption). Without this term a
+  // direct-only model always reads dark at the perimeter and under-reports U0.
+  const Elm=S.cols*S.rows*S.lm*S.uf*S.mf/(S.W*S.D);
+  const ind=S.inter==='on'?Math.max(0,Elm-dirAvg):0;
+  if(ind)for(let p=0;p<lf.length;p++)lf[p]+=ind;
+  // pass 2 — statistics over the EN 12464-1 task area only
   const b=bandWidth(),xl=S.W/2-b,zl=S.D/2-b;
   let mn=Infinity,mx=0,sum=0,n=0,ok=0;
   for(let j=0;j<NY;j++){const z=-S.D/2+(j+0.5)/NY*S.D;
     for(let i=0;i<NX;i++){const x=-S.W/2+(i+0.5)/NX*S.W;
-      let E=0;for(let k=0;k<P.length;k++){const dx=x-P[k][0],dz=z-P[k][1],d=Math.sqrt(h*h+dx*dx+dz*dz);E+=S.mf*m.I0*Math.pow(h,m.n+1)/Math.pow(d,m.n+3);}
-      lf[j*NX+i]=E;                                  // heatmap always shows the full plane
-      if(Math.abs(x)<=xl&&Math.abs(z)<=zl){          // stats only over the task area
-        if(E<mn)mn=E;if(E>mx)mx=E;sum+=E;n++;if(E>=S.target)ok++;}}}
+      if(Math.abs(x)>xl||Math.abs(z)>zl)continue;
+      const E=lf[j*NX+i];
+      if(E<mn)mn=E;if(E>mx)mx=E;sum+=E;n++;if(E>=S.target)ok++;}}
   if(!n){mn=0;mx=0;sum=0;n=1;}                       // degenerate room — avoid NaN
   const avg=sum/n,U0=avg>0?mn/avg:0;
-  return{mn,mx,avg,U0,pct:100*ok/n,band:b};
+  return{mn,mx,avg,U0,pct:100*ok/n,band:b,ind,dirAvg};
 }
 
 const canvas=document.getElementById('lux-gl');
@@ -726,6 +750,7 @@ function refresh(rebuild){
   const f=v=>v>=1000?Math.round(v).toLocaleString():Math.round(v);
   $('sa').textContent=f(st.avg);$('sn').textContent=f(st.mn);$('sx').textContent=f(st.mx);$('su').textContent=st.U0.toFixed(2);$('sp').textContent=Math.round(st.pct);
   $('lest').textContent=Math.round(S.cols*S.rows*S.lm*S.uf*S.mf/(S.W*S.D)).toLocaleString()+' lx';
+  $('lind').textContent=S.inter==='on'?'+'+Math.round(st.ind).toLocaleString()+' lx':'excluded';
   $('lfx').textContent=S.cols+' × '+S.rows+' = '+(S.cols*S.rows)+' fixtures';
   const avgOK=st.avg>=S.target,uOK=st.U0>=0.6;
   $('lux-badges').innerHTML=
@@ -760,7 +785,7 @@ bn('lt','target',false);bn('lW','W',true);bn('lD','D',true);bn('lH','H',true);bn
 $('lmf').addEventListener('input',e=>{S.mf=+e.target.value;$('lmfv').textContent=S.mf.toFixed(2);refresh(false);});
 $('luf').addEventListener('input',e=>{S.uf=+e.target.value;$('lufv').textContent=S.uf.toFixed(2);refresh(false);});
 function bs(wid,attr,key,rebuild){document.querySelectorAll('#'+wid+' button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#'+wid+' button').forEach(x=>x.classList.remove('on'));b.classList.add('on');S[key]=b.dataset[attr];refresh(rebuild);}));}
-bs('ldist','d','dist',false);bs('lcmap','c','cmap',false);bs('linterp','i','interp',false);
+bs('ldist','d','dist',false);bs('lcmap','c','cmap',false);bs('linterp','i','interp',false);bs('linter','x','inter',false);
 </script>
 </body>
 </html>
