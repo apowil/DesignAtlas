@@ -603,34 +603,37 @@ footer p{max-width:74ch;margin:8px 0 0}
 // Self-contained. IDs short to avoid collision with atlas CSS.
 // ============================================================
 
+// Each preset ships a *compliant starting layout*: the grid and flux are tuned so
+// the scheme opens at or just above its own maintained target with U0 >= 0.6.
+// Tune from there — the badges tell you when you have broken it.
 const PRESETS=[
   {g:"Residential",items:[
     {n:"Living room — ambient",      lx:200, W:5,  D:4,   H:2.7,WP:0,   c:2,r:2,lm:3000,note:"EN 12464-1: 100–300 lx. 2700–3000K warm white. Layer with task and accent lighting; dimming strongly recommended."},
-    {n:"Living room — reading task", lx:500, W:5,  D:4,   H:2.7,WP:0.8, c:2,r:2,lm:3600,note:"Task lamp over reading seat. Keep ambient at 150–200 lx; a directed floor lamp supplements the general scheme."},
-    {n:"Kitchen — ambient",          lx:200, W:4,  D:3,   H:2.7,WP:0.8, c:2,r:2,lm:2800,note:"150–200 lx ambient. Supplement worktops separately with under-cabinet LED strips targeting 400–500 lx on the surface."},
+    {n:"Living room — reading task", lx:500, W:5,  D:4,   H:2.7,WP:0.8, c:3,r:2,lm:3600,note:"Task lamp over reading seat. Keep ambient at 150–200 lx; a directed floor lamp supplements the general scheme."},
+    {n:"Kitchen — ambient",          lx:200, W:4,  D:3,   H:2.7,WP:0.8, c:2,r:2,lm:1600,note:"150–200 lx ambient. Supplement worktops separately with under-cabinet LED strips targeting 400–500 lx on the surface."},
     {n:"Kitchen — worktop task",     lx:500, W:4,  D:3,   H:2.7,WP:0.9, c:2,r:2,lm:4000,note:"Worktop surface at ~0.9 m. 400–500 lx; CRI ≥90 for food-colour accuracy. 3000–4000K neutral-warm."},
-    {n:"Bedroom — general",          lx:150, W:4,  D:3.5, H:2.7,WP:0,   c:2,r:1,lm:2000,note:"100–200 lx general. 2700K warm. Full dimming to ≤5 lx for sleep transition. Bedside reading supplement at 300 lx."},
-    {n:"Bathroom — vanity",          lx:300, W:2.5,D:2,   H:2.6,WP:0.9, c:1,r:1,lm:2800,note:"200–500 lx. CRI ≥90 mandatory for grooming accuracy. Side-lit mirror preferred — top-lit creates under-eye shadows. 3000K."},
-    {n:"Home office / study",        lx:500, W:3.5,D:3,   H:2.7,WP:0.75,c:2,r:2,lm:3600,note:"300–500 lx. 4000K neutral. UGR ≤19 — avoid veiling reflections on screens. U₀ ≥0.6 across the desk area."},
-    {n:"Dining room",                lx:200, W:4,  D:4,   H:2.7,WP:0.75,c:1,r:1,lm:3600,note:"150–200 lx ambient. A pendant over the table at 300–500 lx supplements. 2700–3000K warm for appetite and atmosphere."},
+    {n:"Bedroom — general",          lx:150, W:4,  D:3.5, H:2.7,WP:0,   c:2,r:2,lm:1700,note:"100–200 lx general. 2700K warm. Full dimming to ≤5 lx for sleep transition. Bedside reading supplement at 300 lx."},
+    {n:"Bathroom — vanity",          lx:300, W:2.5,D:2,   H:2.6,WP:0.9, c:2,r:1,lm:2400,note:"200–500 lx. CRI ≥90 mandatory for grooming accuracy. Side-lit mirror preferred — top-lit creates under-eye shadows. 3000K."},
+    {n:"Home office / study",        lx:500, W:3.5,D:3,   H:2.7,WP:0.75,c:2,r:2,lm:3800,note:"300–500 lx. 4000K neutral. UGR ≤19 — avoid veiling reflections on screens. U₀ ≥0.6 across the desk area."},
+    {n:"Dining room",                lx:200, W:4,  D:4,   H:2.7,WP:0.75,c:2,r:2,lm:1400,note:"150–200 lx ambient. A pendant over the table at 300–500 lx supplements. 2700–3000K warm for appetite and atmosphere."},
   ]},
   {g:"Hospitality",items:[
-    {n:"Hotel lobby — ambient",      lx:200, W:12, D:8,   H:4,  WP:0,   c:3,r:2,lm:5000,note:"200–300 lx ambient. Layered: architectural accent + reception task. Warm 2700–3500K. Feature walls 3–10× ambient."},
-    {n:"Hotel lobby — reception",    lx:400, W:12, D:8,   H:4,  WP:0.8, c:3,r:2,lm:6000,note:"300–500 lx on desk surface. Focused task light on the counter — not the ceiling void above it."},
-    {n:"Hotel guest room",           lx:150, W:6,  D:4,   H:2.8,WP:0,   c:2,r:2,lm:2000,note:"100–200 lx ambient. Bedside task 300 lx. 2700K. Full dimming to 0. Avoid direct glare from the bed position."},
-    {n:"Restaurant — dining",        lx:150, W:12, D:8,   H:3.2,WP:0.75,c:3,r:2,lm:2000,note:"100–200 lx ambient for atmosphere. Pendants or candles supplement table level. 2700K; CRI ≥80 for food colour."},
-    {n:"Restaurant — kitchen/pass",  lx:500, W:8,  D:6,   H:3,  WP:0.9, c:3,r:2,lm:5000,note:"400–500 lx on prep surfaces. No shadows on cutting boards. 4000K. IP54+ fittings near sinks. CRI ≥80."},
+    {n:"Hotel lobby — ambient",      lx:200, W:12, D:8,   H:4,  WP:0,   c:4,r:3,lm:3800,note:"200–300 lx ambient. Layered: architectural accent + reception task. Warm 2700–3500K. Feature walls 3–10× ambient."},
+    {n:"Hotel lobby — reception",    lx:400, W:12, D:8,   H:4,  WP:0.8, c:4,r:3,lm:6400,note:"300–500 lx on desk surface. Focused task light on the counter — not the ceiling void above it."},
+    {n:"Hotel guest room",           lx:150, W:6,  D:4,   H:2.8,WP:0,   c:2,r:2,lm:2700,note:"100–200 lx ambient. Bedside task 300 lx. 2700K. Full dimming to 0. Avoid direct glare from the bed position."},
+    {n:"Restaurant — dining",        lx:150, W:12, D:8,   H:3.2,WP:0.75,c:4,r:3,lm:2100,note:"100–200 lx ambient for atmosphere. Pendants or candles supplement table level. 2700K; CRI ≥80 for food colour."},
+    {n:"Restaurant — kitchen/pass",  lx:500, W:8,  D:6,   H:3,  WP:0.9, c:4,r:3,lm:3700,note:"400–500 lx on prep surfaces. No shadows on cutting boards. 4000K. IP54+ fittings near sinks. CRI ≥80."},
   ]},
   {g:"Retail & commercial",items:[
-    {n:"Retail — general floor",     lx:500, W:20, D:15,  H:3.5,WP:0,   c:5,r:4,lm:5000,note:"400–750 lx general. Track spots on merchandise 3–5× ambient. UGR ≤22. 3000–4000K; CRI ≥80."},
-    {n:"Retail — feature display",   lx:1000,W:4,  D:3,   H:3.5,WP:0.9, c:2,r:2,lm:5000,note:"750–1500 lx accent. Spot luminaires; CRI ≥90 for accurate colour rendering. Avoid UV on textiles and sensitive merchandise."},
-    {n:"Supermarket — aisle",        lx:750, W:20, D:15,  H:4,  WP:0.9, c:5,r:4,lm:8000,note:"500–1000 lx. Fresh-food zones: CRI ≥90 + R9 ≥50 for meat and produce colour accuracy. 3500–4000K."},
+    {n:"Retail — general floor",     lx:500, W:20, D:15,  H:3.5,WP:0,   c:7,r:5,lm:7200,note:"400–750 lx general. Track spots on merchandise 3–5× ambient. UGR ≤22. 3000–4000K; CRI ≥80."},
+    {n:"Retail — feature display",   lx:1000,W:4,  D:3,   H:3.5,WP:0.9, c:4,r:3,lm:3800,note:"750–1500 lx accent. Spot luminaires; CRI ≥90 for accurate colour rendering. Avoid UV on textiles and sensitive merchandise."},
+    {n:"Supermarket — aisle",        lx:750, W:20, D:15,  H:4,  WP:0.9, c:8,r:6,lm:7500,note:"500–1000 lx. Fresh-food zones: CRI ≥90 + R9 ≥50 for meat and produce colour accuracy. 3500–4000K."},
   ]},
   {g:"Cultural & civic",items:[
-    {n:"Museum — circulation",       lx:150, W:15, D:12,  H:5,  WP:0,   c:3,r:3,lm:5000,note:"100–200 lx ambient. UV-filtered sources mandatory near all artefacts. Annual lux-hour exposure budget per CIE 157."},
-    {n:"Museum — sensitive artefacts",lx:75, W:8,  D:6,   H:4,  WP:0.9, c:2,r:2,lm:1200,note:"≤150 lx; often 50 lx for textiles and works on paper. CRI ≥95. Fibre-optic or UV-filtered LED only."},
+    {n:"Museum — circulation",       lx:150, W:15, D:12,  H:5,  WP:0,   c:4,r:4,lm:3800,note:"100–200 lx ambient. UV-filtered sources mandatory near all artefacts. Annual lux-hour exposure budget per CIE 157."},
+    {n:"Museum — sensitive artefacts",lx:75, W:8,  D:6,   H:4,  WP:0.9, c:2,r:2,lm:2100,note:"≤150 lx; often 50 lx for textiles and works on paper. CRI ≥95. Fibre-optic or UV-filtered LED only."},
     {n:"Classroom",                  lx:400, W:9,  D:7,   H:3,  WP:0.8, c:3,r:3,lm:5000,note:"300–500 lx. 4000K. UGR ≤19. U₀ ≥0.6 per EN 12464-1. Tunable-white for circadian health is emerging practice."},
-    {n:"Gym / sports hall",          lx:400, W:20, D:14,  H:7,  WP:0,   c:4,r:3,lm:10000,note:"300–500 lx. UGR ≤25. U₀ ≥0.7. High-mount luminaires; check vertical-plane illuminance for ball sports."},
+    {n:"Gym / sports hall",          lx:400, W:20, D:14,  H:7,  WP:0,   c:6,r:4,lm:11600,note:"300–500 lx. UGR ≤25. U₀ ≥0.7. High-mount luminaires; check vertical-plane illuminance for ball sports."},
   ]},
 ];
 
