@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="IP66 for robot joints: the powerful-jet test at four times IP65's pressure, why it's routinely paired with IP67 as a dual rating, what changes in lip-seal margin and gland flatness, and the UV and thermal consequences of the outdoor deployment it usually implies.">
+<title>IP66 — Heavy Wash-Down · Engineering Design · Design Atlas</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+:root{
+  --ink:#16202B; --ink-2:#47586A; --ink-3:#7A8994;
+  --vellum:#E4E9EA; --sheet:#F3F6F6;
+  --alloy:#B4BEC3; --alloy-dk:#7D8990;
+  --nitrile:#B5451B; --immersion:#1C6D8B; --amber:#C08A1E;
+  --line:#16202B2E; --line-hard:#16202B;
+  --disp:'Saira Condensed','Arial Narrow',sans-serif;
+  --body:'IBM Plex Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--vellum);color:var(--ink);font-family:var(--body);
+  font-size:15px;line-height:1.55;padding:26px 18px 72px}
+.sheet{max-width:1120px;margin:0 auto;background:var(--sheet);border:1px solid var(--line-hard);
+  box-shadow:0 18px 44px -34px #16202B}
+
+/* ---- title block ---- */
+.tb-top{display:grid;grid-template-columns:1fr auto;gap:20px;padding:22px 26px 16px;align-items:end}
+.tb-subject{font-family:var(--disp);font-weight:700;font-size:clamp(28px,4.6vw,48px);
+  line-height:.94;text-transform:uppercase;margin:0}
+.tb-sub{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-2);margin:0 0 10px}
+.plate{display:flex;border:1px solid var(--line-hard);background:var(--ink);color:var(--sheet)}
+.cell{padding:8px 14px 9px;border-right:1px solid #ffffff33;text-align:center;min-width:76px}
+.cell:last-child{border-right:0}
+.cell b{display:block;font-family:var(--disp);font-weight:700;font-size:36px;line-height:1}
+.cell span{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+  text-transform:uppercase;color:#ffffffa8;margin-top:3px}
+.cell.lit b{color:#E8A33D}
+.tb-fields{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line-hard);
+  border-bottom:1px solid var(--line-hard)}
+.field{padding:7px 26px;border-right:1px solid var(--line);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.field:last-child{border-right:0}
+.field strong{color:var(--ink);font-weight:600}
+
+/* ---- index rail ---- */
+.index{display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid var(--line-hard);
+  position:sticky;top:0;background:var(--sheet);z-index:9}
+.index a{flex:1 1 auto;padding:9px 14px;border-right:1px solid var(--line);text-decoration:none;
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-2);white-space:nowrap;transition:background .12s,color .12s}
+.index a:last-child{border-right:0}
+.index a:hover,.index a:focus-visible{background:var(--ink);color:var(--sheet);outline:0}
+.index a b{color:var(--nitrile);font-weight:600;margin-right:6px}
+.index a:hover b,.index a:focus-visible b{color:#E8A33D}
+
+/* ---- convention key ---- */
+.key{display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid var(--line-hard);background:#fff}
+.key div{display:flex;align-items:center;gap:8px;padding:8px 16px;border-right:1px solid var(--line);
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.key div:last-child{border-right:0}
+.key i{width:22px;height:12px;border:1px solid var(--line-hard);display:block}
+
+/* ---- sections ---- */
+section{border-bottom:1px solid var(--line-hard);padding:32px 26px 36px;scroll-margin-top:44px}
+section:last-of-type{border-bottom:0}
+.eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--nitrile);margin:0 0 6px}
+h2{font-family:var(--disp);font-weight:600;text-transform:uppercase;letter-spacing:.02em;
+  font-size:clamp(21px,2.7vw,28px);line-height:1.05;margin:0 0 4px}
+h3.sub{font-family:var(--disp);font-weight:600;text-transform:uppercase;font-size:17px;
+  letter-spacing:.03em;margin:26px 0 8px;padding-top:14px;border-top:1px solid var(--line)}
+.lede{max-width:68ch;color:var(--ink-2);margin:0 0 22px}
+p{margin:0 0 12px}
+.body-col{max-width:72ch}
+strong{font-weight:600}
+.chip{font-family:var(--mono);font-size:12px;font-weight:500;background:#1C6D8B18;
+  color:#12556E;padding:1px 6px;white-space:nowrap;border-bottom:1px solid #1C6D8B55}
+.chip.el{background:#B5451B15;color:#8E360F;border-bottom-color:#B5451B55}
+
+/* ---- test pair ---- */
+.tests{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.test{border:1px solid var(--line-hard);background:#fff}
+.test-hd{display:flex;align-items:baseline;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.digit{font-family:var(--disp);font-weight:700;font-size:26px;line-height:1;
+  background:var(--ink);color:var(--sheet);padding:3px 9px 4px}
+.test-hd h3{margin:0;font-family:var(--disp);font-weight:600;font-size:19px;text-transform:uppercase}
+.test-hd em{font-style:normal;font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-3);margin-left:auto}
+svg{display:block;width:100%;height:auto}
+.spec{border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px}
+.spec div{display:flex;justify-content:space-between;gap:12px;padding:5px 14px;border-bottom:1px dotted var(--line)}
+.spec div:last-child{border-bottom:0}
+.spec b{color:var(--ink-3);font-weight:400;letter-spacing:.06em;text-transform:uppercase;font-size:10px}
+.spec i{font-style:normal;color:var(--ink);font-weight:500;text-align:right}
+
+.warn{margin-top:20px;border:1px solid var(--nitrile);background:#B5451B0F;padding:12px 15px}
+.warn p{margin:0;font-size:14px}
+.warn b{color:var(--nitrile);font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;display:block;margin-bottom:3px}
+
+/* ---- figures ---- */
+.figure{border:1px solid var(--line-hard);background:#fff;margin:0 0 4px}
+.fig-cap{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);padding:8px 14px;border-top:1px solid var(--line)}
+.legend{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line-hard)}
+.row{display:grid;grid-template-columns:26px 1fr;gap:11px;padding:11px 14px;
+  border-bottom:1px solid var(--line);border-right:1px solid var(--line);transition:background .12s}
+.row:nth-child(2n){border-right:0}
+.row:focus-visible{outline:2px solid var(--immersion);outline-offset:-2px}
+.row .no{width:24px;height:24px;border-radius:50%;border:1px solid var(--line-hard);
+  display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:600;background:#fff;
+  transition:background .12s,color .12s}
+.row h4{margin:0 0 2px;font-size:14px;font-weight:600;line-height:1.3}
+.row p{margin:0;font-size:13px;color:var(--ink-2);line-height:1.45}
+.row:hover,.row:focus-visible{background:#1C6D8B12}
+.row:hover .no,.row:focus-visible .no{background:var(--nitrile);color:#fff;border-color:var(--nitrile)}
+[data-part]{transition:opacity .12s linear}
+.figure:has(.row:hover) [data-part],.figure:has(.row:focus-visible) [data-part]{opacity:.18}
+.figure:has(.row[data-key="1"]:hover) [data-part="1"],.figure:has(.row[data-key="1"]:focus-visible) [data-part="1"],
+.figure:has(.row[data-key="2"]:hover) [data-part="2"],.figure:has(.row[data-key="2"]:focus-visible) [data-part="2"],
+.figure:has(.row[data-key="3"]:hover) [data-part="3"],.figure:has(.row[data-key="3"]:focus-visible) [data-part="3"],
+.figure:has(.row[data-key="4"]:hover) [data-part="4"],.figure:has(.row[data-key="4"]:focus-visible) [data-part="4"],
+.figure:has(.row[data-key="5"]:hover) [data-part="5"],.figure:has(.row[data-key="5"]:focus-visible) [data-part="5"],
+.figure:has(.row[data-key="6"]:hover) [data-part="6"],.figure:has(.row[data-key="6"]:focus-visible) [data-part="6"],
+.figure:has(.row[data-key="7"]:hover) [data-part="7"],.figure:has(.row[data-key="7"]:focus-visible) [data-part="7"],
+.figure:has(.row[data-key="8"]:hover) [data-part="8"],.figure:has(.row[data-key="8"]:focus-visible) [data-part="8"]{opacity:1}
+
+/* ---- two-up ---- */
+.two{display:grid;grid-template-columns:1.25fr 1fr;gap:22px;align-items:start}
+.two.even{grid-template-columns:1fr 1fr}
+.two.flip{grid-template-columns:1fr 1.25fr}
+
+/* ---- data tables ---- */
+table{width:100%;border-collapse:collapse;border:1px solid var(--line-hard);background:#fff}
+th,td{text-align:left;padding:9px 13px;border-bottom:1px solid var(--line);vertical-align:top;font-size:13.5px}
+th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--sheet);background:var(--ink);font-weight:500;border-bottom:0}
+tr:last-child td{border-bottom:0}
+td.k{font-weight:600;width:26%}
+td.num{font-family:var(--mono);font-size:12.5px;color:var(--immersion);white-space:nowrap;width:24%}
+td.num.el{color:var(--nitrile)}
+.tbl-cap{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);margin:6px 0 0}
+
+/* ---- rank list ---- */
+ol.rank{list-style:none;margin:0;padding:0;border:1px solid var(--line-hard);background:#fff}
+.rank li{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:10px 14px;
+  border-bottom:1px solid var(--line);font-size:13.5px}
+.rank li:last-child{border-bottom:0}
+.rank .tag{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:#fff;background:var(--ink-2);padding:2px 6px;height:fit-content;white-space:nowrap}
+.rank .tag.hi{background:var(--nitrile)} .rank .tag.md{background:var(--immersion)}
+.rank b{font-weight:600;display:block} .rank span{color:var(--ink-2)}
+
+/* ---- do / dont ---- */
+.dd{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line-hard);background:#fff}
+.dd > div{padding:14px 16px}
+.dd .yes{border-right:1px solid var(--line)}
+.dd h5{margin:0 0 8px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase}
+.dd .yes h5{color:#2C6E49} .dd .no h5{color:var(--nitrile)}
+.dd ul{margin:0;padding:0;list-style:none}
+.dd li{padding:5px 0 5px 20px;position:relative;font-size:13.5px;border-bottom:1px dotted var(--line)}
+.dd li:last-child{border-bottom:0}
+.dd .yes li::before{content:"✓";position:absolute;left:0;color:#2C6E49;font-family:var(--mono);font-weight:600}
+.dd .no li::before{content:"✕";position:absolute;left:0;color:var(--nitrile);font-family:var(--mono);font-weight:600}
+
+/* ---- checklist ---- */
+.check{border:1px solid var(--line-hard);background:#fff;counter-reset:c}
+.check li{list-style:none;display:grid;grid-template-columns:auto 1fr;gap:13px;padding:11px 15px;
+  border-bottom:1px solid var(--line);font-size:13.5px}
+.check li:last-child{border-bottom:0}
+.check li::before{counter-increment:c;content:counter(c,decimal-leading-zero);
+  font-family:var(--mono);font-size:11px;color:var(--nitrile);font-weight:600;padding-top:2px}
+.check ol{margin:0;padding:0}
+.check b{display:block;font-weight:600} .check span{color:var(--ink-2)}
+
+.foot{padding:16px 26px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;
+  color:var(--ink-3);border-top:1px solid var(--line-hard);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+@media (max-width:820px){
+  body{padding:12px 8px 48px}
+  .tests,.legend,.two,.two.even,.two.flip,.dd{grid-template-columns:1fr}
+  .row{border-right:0}
+  .dd .yes{border-right:0;border-bottom:1px solid var(--line)}
+  .tb-top{grid-template-columns:1fr;align-items:start}
+  .tb-fields{grid-template-columns:1fr 1fr}
+  .field{padding:6px 16px}
+  section{padding:24px 14px 26px}
+  td.k,td.num{width:auto}
+  .index{position:static}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+</head>
+<body>
+
+<div class="sheet">
+
+<!-- ========================= TITLE BLOCK ========================= -->
+<div class="tb-top">
+  <div>
+    <p class="tb-sub">Ingress protection — heavy wash-down, decoded</p>
+    <h1 class="tb-subject">IP66 in a<br>robot joint</h1>
+  </div>
+  <div class="plate" aria-label="IP 6 6 code breakdown">
+    <div class="cell"><b>IP</b><span>Ingress<br>protection</span></div>
+    <div class="cell lit"><b>6</b><span>Solids<br>dust-tight</span></div>
+    <div class="cell lit"><b>6</b><span>Liquids<br>powerful jets</span></div>
+  </div>
+</div>
+<div class="tb-fields">
+  <div class="field">Standard&nbsp; <strong>IEC 60529</strong></div>
+  <div class="field">Test type&nbsp; <strong>Type test, new sample</strong></div>
+  <div class="field">Energised&nbsp; <strong>No, unless specified</strong></div>
+  <div class="field">Scope&nbsp; <strong>Enclosure only</strong></div>
+</div>
+
+<nav class="index" aria-label="Sheet index">
+  <a href="#s1"><b>01</b>Acceptance test</a>
+  <a href="#s2"><b>02</b>Why pair with 67</a>
+  <a href="#s3"><b>03</b>Detail design deltas</a>
+  <a href="#s4"><b>04</b>Outdoor consequences</a>
+  <a href="#s5"><b>05</b>Verification</a>
+</nav>
+
+<div class="key" aria-label="Drawing conventions">
+  <div><i style="background:repeating-linear-gradient(45deg,#B4BEC3 0 3px,#47586A 3px 4px)"></i>Fixed part</div>
+  <div><i style="background:repeating-linear-gradient(-45deg,#DDE3E5 0 3px,#47586A 3px 4px)"></i>Rotating part</div>
+  <div><i style="background:#B5451B;border-color:#B5451B"></i>Elastomer / seal</div>
+  <div><i style="background:#1C6D8B33;border-color:#1C6D8B"></i>Fluid or air path</div>
+  <div><i style="background:#fff;border-radius:50%;width:14px;height:14px"></i>Callout balloon</div>
+</div>
+
+<!-- ========================= 01 ACCEPTANCE ========================= -->
+<section id="s1">
+  <p class="eyebrow">01 — Acceptance conditions</p>
+  <h2>The same jet test, four times the pressure</h2>
+  <p class="lede">IP66 keeps IP65's dust-tight first numeral and swaps the 6.3 mm low-pressure nozzle for a 12.5 mm nozzle at roughly 100 kPa — about the pressure a domestic pressure washer produces, not an industrial one. It is the rating for equipment that gets hosed hard, outdoors or in a heavy-duty wash-down cell, and it is very commonly specified as a dual rating with IP67.</p>
+
+  <div class="tests">
+    <div class="test">
+      <div class="test-hd"><span class="digit">6</span><h3>Dust-tight</h3><em>Cl. 13.4</em></div>
+      <svg viewBox="0 0 400 250" role="img" aria-label="Dust chamber test, identical to IP65 and IP67's first numeral">
+        <rect x="34" y="26" width="278" height="176" fill="#F3F6F6" stroke="#16202B" stroke-width="1.6"/>
+        <g fill="#7D8990" opacity=".55">
+          <circle cx="62" cy="52" r="2.2"/><circle cx="96" cy="40" r="1.6"/><circle cx="131" cy="60" r="2.4"/>
+          <circle cx="168" cy="44" r="1.8"/><circle cx="204" cy="58" r="2.1"/><circle cx="243" cy="42" r="1.7"/>
+          <circle cx="278" cy="62" r="2.3"/><circle cx="78" cy="86" r="1.9"/><circle cx="228" cy="88" r="2"/>
+        </g>
+        <rect x="128" y="112" width="90" height="62" rx="4" fill="#B4BEC3" stroke="#16202B" stroke-width="1.6"/>
+        <rect x="140" y="124" width="66" height="38" rx="2" fill="#fff" stroke="#16202B" stroke-width=".9" opacity=".8"/>
+        <text x="173" y="148" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#16202B">D.U.T.</text>
+        <path d="M138,174 L138,190 M208,174 L208,190 M118,190 L228,190" stroke="#16202B" stroke-width="1.4" fill="none"/>
+        <text x="34" y="18" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#47586A" letter-spacing="1">SAME RIG, IP65 / IP67 FIRST NUMERAL</text>
+        <text x="34" y="222" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#B5451B">PASS = NO DUST INSIDE. AT ALL.</text>
+        <text x="34" y="238" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8994">See the IP67 sheet for detail — unchanged here.</text>
+      </svg>
+      <div class="spec">
+        <div><b>Medium</b><i>Talc, passes 75 µm mesh</i></div>
+        <div><b>Depression</b><i>≤ 2 kPa below ambient</i></div>
+        <div><b>Duration</b><i>8 h</i></div>
+        <div><b>Criterion</b><i>No ingress of dust</i></div>
+      </div>
+    </div>
+    <div class="test">
+      <div class="test-hd"><span class="digit">6</span><h3>Powerful jet</h3><em>Cl. 14.2.6</em></div>
+      <svg viewBox="0 0 400 250" role="img" aria-label="Powerful jet test: a 12.5 millimetre nozzle directs water at roughly 100 kilopascals from 2.5 to 3 metres">
+        <rect x="34" y="26" width="278" height="176" fill="#F3F6F6" stroke="#16202B" stroke-width="1.6"/>
+        <rect x="150" y="112" width="90" height="62" rx="4" fill="#B4BEC3" stroke="#16202B" stroke-width="1.6"/>
+        <rect x="162" y="124" width="66" height="38" rx="2" fill="#fff" stroke="#16202B" stroke-width=".9" opacity=".8"/>
+        <text x="195" y="148" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#16202B">D.U.T.</text>
+        <path d="M160,174 L160,190 M230,174 L230,190 M140,190 L250,190" stroke="#16202B" stroke-width="1.4" fill="none"/>
+        <circle cx="52" cy="140" r="8" fill="#fff" stroke="#16202B" stroke-width="1.5"/>
+        <path d="M52,132 L52,148 M44,140 L60,140" stroke="#16202B" stroke-width="1.2"/>
+        <path d="M60,140 L150,140" stroke="#1C6D8B" stroke-width="5.5" marker-end="url(#ar66)"/>
+        <defs><marker id="ar66" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0,0 L9,4 L0,8 Z" fill="#1C6D8B"/></marker></defs>
+        <path d="M64,133 L110,127 M64,147 L110,153" stroke="#1C6D8B" stroke-width="1.1" opacity=".6"/>
+        <text x="26" y="118" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#12556E">12.5 mm NOZZLE</text>
+        <text x="34" y="18" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#47586A" letter-spacing="1">SAME SWEEP AS IPX5, 8× THE FLOW</text>
+        <text x="34" y="222" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#B5451B">PASS = NO HARMFUL QUANTITY OF WATER</text>
+        <text x="34" y="238" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8994">Distance unchanged from IPX5 — the nozzle and flow do the work.</text>
+      </svg>
+      <div class="spec">
+        <div><b>Nozzle</b><i>12.5 mm</i></div>
+        <div><b>Flow</b><i>100 ± 5 l/min</i></div>
+        <div><b>Pressure</b><i class="el">≈ 100 kPa at the nozzle</i></div>
+        <div><b>Distance</b><i>2.5 – 3 m</i></div>
+        <div><b>Duration</b><i>≥ 3 min, longer for large area</i></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 02 WHY PAIR WITH 67 ========================= -->
+<section id="s2">
+  <p class="eyebrow">02 — Why the dual rating exists</p>
+  <h2>66/67 covers two failure modes IP67 alone doesn't</h2>
+  <p class="lede">The <a href="ip67-robot-joint-sealing.html#s1" style="color:var(--immersion)">IP67 sheet</a> already flags this: immersion applies uniform hydrostatic pressure, a jet applies concentrated dynamic pressure, and the second numeral is not cumulative. IP67 alone says nothing about whether a lip seal can be lifted locally by a jet — IP66 alone says nothing about a joint left standing in a puddle. Outdoor and heavy-industrial arms routinely need both, specified and tested as a pair: <strong>IP66/IP67</strong>.</p>
+
+  <div class="warn">
+    <p><b>Test both, don't infer either</b>
+    A design that passes the 100 kPa jet does not automatically pass 30 minutes of static immersion, and vice versa — they load the seal geometry differently (Sec. 02 of the IP65 sheet has the full mechanism). If the spec says IP66/IP67, qualification means running both tests on the same sample, not picking the one that sounds harder.</p>
+  </div>
+</section>
+
+<!-- ========================= 03 DETAIL DELTAS ========================= -->
+<section id="s3">
+  <p class="eyebrow">03 — Detail design</p>
+  <h2>What 100 kPa asks of the seal that 30 kPa doesn't</h2>
+  <div class="two even">
+    <div class="body-col">
+      <p><strong>Lip seal margin, not lip seal type.</strong> The same double-lip construction from the <a href="ip67-robot-joint-sealing.html#s5" style="color:var(--immersion)">IP67 detail</a> still applies — but at 100 kPa local impingement, garter-spring tension and radial interference deserve to be checked against the seal maker's own pressure-capability curve, not just assumed from a catalogue part number picked for the shaft diameter alone.</p>
+      <p><strong>Gland flatness matters more.</strong> A jet finds the one high point on a face seal where squeeze has locally dropped below spec, in a way a slow static head is less likely to. Re-check the tolerance-stack squeeze analysis from <a href="ip67-robot-joint-sealing.html#s4" style="color:var(--immersion)">IP67 Sec. 04</a> at its worst corner, not its nominal.</p>
+    </div>
+    <div class="body-col">
+      <p><strong>Connector and cable entries take the most direct hit.</strong> A jet swept across a base panel loads every gland and cap at full test pressure, repeatedly, over the equipment's life — not just once at qualification. Captive caps and a genuine clamping-range match to the cable jacket (IP67 Sec. 07) stop being nice-to-haves.</p>
+      <p><strong>The vent still needs a shroud.</strong> A membrane rated only for splash or a light jet is a liability at 100 kPa; specify the vent's own ingress rating against the wash-down pressure it will actually see, and mount it out of the direct sweep path.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 04 OUTDOOR ========================= -->
+<section id="s4">
+  <p class="eyebrow">04 — Deployment</p>
+  <h2>IP66 usually means outdoor, and outdoor adds UV and thermal cycling</h2>
+  <p class="lede">Rating the enclosure for water is necessary but not sufficient once the deployment is outdoors. Two consequences follow that a pure IP-code reading misses.</p>
+  <ol class="rank">
+    <li><span class="tag hi">UV</span><span><b>Elastomer degradation</b>NBR and standard EPDM chalk and crack under sustained UV; an outdoor IP66/67 joint should specify a UV-stabilised compound or a compound inherently resistant to it (silicone, UV-stable FKM), not just the pressure-rated Shore hardness from <a href="ip67-robot-joint-sealing.html#s5" style="color:var(--immersion)">Tab. 3 of the IP67 sheet</a>.</span></li>
+    <li><span class="tag hi">Thermal range</span><span><b>Wider cycling, bigger vent swing</b>An outdoor enclosure sees a larger daily and seasonal temperature range than an indoor cell, which means the <a href="ip67-robot-joint-sealing.html#s6" style="color:var(--immersion)">pressure-equalisation vent</a> has to pass more air, more often — size it against the actual outdoor delta-T, not the 60→20 °C duty-cycle figure the IP67 sheet uses as its indoor baseline.</span></li>
+  </ol>
+</section>
+
+<!-- ========================= 05 VERIFICATION ========================= -->
+<section id="s5">
+  <p class="eyebrow">05 — Verification</p>
+  <h2>Production testing is unchanged — the correlation isn't</h2>
+  <p class="lede">The <a href="ip67-robot-joint-sealing.html#s9" style="color:var(--immersion)">pressure-decay rig</a> from the IP67 sheet is the same rig here. What changes is the reject threshold: it must be correlated against calibrated-leak master parts pushed to failure under the 100 kPa jet, not the 9.8 kPa immersion head — a decay limit borrowed from an IP67 line will pass IP66 leakers that a jet would have caught.</p>
+</section>
+
+<div class="foot">
+  <span><a href="../index.html" style="color:var(--immersion);text-decoration:none">← Design Atlas / Engineering Design</a></span>
+  <span>IEC 60529</span>
+  <span>Reference sheet — verify all values against current standard text and seal-maker data</span>
+</div>
+</div>
+
+</body>
+</html>
