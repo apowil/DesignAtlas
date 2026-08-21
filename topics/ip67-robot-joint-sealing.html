@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="IP67 for robot joints, decoded: the two acceptance tests, the pressure physics that actually defeats a seal, static gland and rotary lip seal detail design, pressure equalisation, fastener and connector strategy, a leak map of where arms really fail, and a production verification process.">
+<title>IP67 — Robot Joint Sealing · Engineering Design · Design Atlas</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+:root{
+  --ink:#16202B; --ink-2:#47586A; --ink-3:#7A8994;
+  --vellum:#E4E9EA; --sheet:#F3F6F6;
+  --alloy:#B4BEC3; --alloy-dk:#7D8990;
+  --nitrile:#B5451B; --immersion:#1C6D8B; --amber:#C08A1E;
+  --line:#16202B2E; --line-hard:#16202B;
+  --disp:'Saira Condensed','Arial Narrow',sans-serif;
+  --body:'IBM Plex Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--vellum);color:var(--ink);font-family:var(--body);
+  font-size:15px;line-height:1.55;padding:26px 18px 72px}
+.sheet{max-width:1120px;margin:0 auto;background:var(--sheet);border:1px solid var(--line-hard);
+  box-shadow:0 18px 44px -34px #16202B}
+
+/* ---- title block ---- */
+.tb-top{display:grid;grid-template-columns:1fr auto;gap:20px;padding:22px 26px 16px;align-items:end}
+.tb-subject{font-family:var(--disp);font-weight:700;font-size:clamp(28px,4.6vw,48px);
+  line-height:.94;text-transform:uppercase;margin:0}
+.tb-sub{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-2);margin:0 0 10px}
+.plate{display:flex;border:1px solid var(--line-hard);background:var(--ink);color:var(--sheet)}
+.cell{padding:8px 14px 9px;border-right:1px solid #ffffff33;text-align:center;min-width:76px}
+.cell:last-child{border-right:0}
+.cell b{display:block;font-family:var(--disp);font-weight:700;font-size:36px;line-height:1}
+.cell span{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+  text-transform:uppercase;color:#ffffffa8;margin-top:3px}
+.cell.lit b{color:#E8A33D}
+.tb-fields{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line-hard);
+  border-bottom:1px solid var(--line-hard)}
+.field{padding:7px 26px;border-right:1px solid var(--line);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.field:last-child{border-right:0}
+.field strong{color:var(--ink);font-weight:600}
+
+/* ---- index rail ---- */
+.index{display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid var(--line-hard);
+  position:sticky;top:0;background:var(--sheet);z-index:9}
+.index a{flex:1 1 auto;padding:9px 14px;border-right:1px solid var(--line);text-decoration:none;
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-2);white-space:nowrap;transition:background .12s,color .12s}
+.index a:last-child{border-right:0}
+.index a:hover,.index a:focus-visible{background:var(--ink);color:var(--sheet);outline:0}
+.index a b{color:var(--nitrile);font-weight:600;margin-right:6px}
+.index a:hover b,.index a:focus-visible b{color:#E8A33D}
+
+/* ---- convention key ---- */
+.key{display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid var(--line-hard);background:#fff}
+.key div{display:flex;align-items:center;gap:8px;padding:8px 16px;border-right:1px solid var(--line);
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.key div:last-child{border-right:0}
+.key i{width:22px;height:12px;border:1px solid var(--line-hard);display:block}
+
+/* ---- sections ---- */
+section{border-bottom:1px solid var(--line-hard);padding:32px 26px 36px;scroll-margin-top:44px}
+section:last-of-type{border-bottom:0}
+.eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--nitrile);margin:0 0 6px}
+h2{font-family:var(--disp);font-weight:600;text-transform:uppercase;letter-spacing:.02em;
+  font-size:clamp(21px,2.7vw,28px);line-height:1.05;margin:0 0 4px}
+h3.sub{font-family:var(--disp);font-weight:600;text-transform:uppercase;font-size:17px;
+  letter-spacing:.03em;margin:26px 0 8px;padding-top:14px;border-top:1px solid var(--line)}
+.lede{max-width:68ch;color:var(--ink-2);margin:0 0 22px}
+p{margin:0 0 12px}
+.body-col{max-width:72ch}
+strong{font-weight:600}
+.chip{font-family:var(--mono);font-size:12px;font-weight:500;background:#1C6D8B18;
+  color:#12556E;padding:1px 6px;white-space:nowrap;border-bottom:1px solid #1C6D8B55}
+.chip.el{background:#B5451B15;color:#8E360F;border-bottom-color:#B5451B55}
+
+/* ---- test pair ---- */
+.tests{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.test{border:1px solid var(--line-hard);background:#fff}
+.test-hd{display:flex;align-items:baseline;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.digit{font-family:var(--disp);font-weight:700;font-size:26px;line-height:1;
+  background:var(--ink);color:var(--sheet);padding:3px 9px 4px}
+.test-hd h3{margin:0;font-family:var(--disp);font-weight:600;font-size:19px;text-transform:uppercase}
+.test-hd em{font-style:normal;font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-3);margin-left:auto}
+svg{display:block;width:100%;height:auto}
+.spec{border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px}
+.spec div{display:flex;justify-content:space-between;gap:12px;padding:5px 14px;border-bottom:1px dotted var(--line)}
+.spec div:last-child{border-bottom:0}
+.spec b{color:var(--ink-3);font-weight:400;letter-spacing:.06em;text-transform:uppercase;font-size:10px}
+.spec i{font-style:normal;color:var(--ink);font-weight:500;text-align:right}
+
+.warn{margin-top:20px;border:1px solid var(--nitrile);background:#B5451B0F;padding:12px 15px}
+.warn p{margin:0;font-size:14px}
+.warn b{color:var(--nitrile);font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;display:block;margin-bottom:3px}
+
+/* ---- figures ---- */
+.figure{border:1px solid var(--line-hard);background:#fff;margin:0 0 4px}
+.fig-cap{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);padding:8px 14px;border-top:1px solid var(--line)}
+.legend{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line-hard)}
+.row{display:grid;grid-template-columns:26px 1fr;gap:11px;padding:11px 14px;
+  border-bottom:1px solid var(--line);border-right:1px solid var(--line);transition:background .12s}
+.row:nth-child(2n){border-right:0}
+.row:focus-visible{outline:2px solid var(--immersion);outline-offset:-2px}
+.row .no{width:24px;height:24px;border-radius:50%;border:1px solid var(--line-hard);
+  display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:600;background:#fff;
+  transition:background .12s,color .12s}
+.row h4{margin:0 0 2px;font-size:14px;font-weight:600;line-height:1.3}
+.row p{margin:0;font-size:13px;color:var(--ink-2);line-height:1.45}
+.row:hover,.row:focus-visible{background:#1C6D8B12}
+.row:hover .no,.row:focus-visible .no{background:var(--nitrile);color:#fff;border-color:var(--nitrile)}
+[data-part]{transition:opacity .12s linear}
+.figure:has(.row:hover) [data-part],.figure:has(.row:focus-visible) [data-part]{opacity:.18}
+.figure:has(.row[data-key="1"]:hover) [data-part="1"],.figure:has(.row[data-key="1"]:focus-visible) [data-part="1"],
+.figure:has(.row[data-key="2"]:hover) [data-part="2"],.figure:has(.row[data-key="2"]:focus-visible) [data-part="2"],
+.figure:has(.row[data-key="3"]:hover) [data-part="3"],.figure:has(.row[data-key="3"]:focus-visible) [data-part="3"],
+.figure:has(.row[data-key="4"]:hover) [data-part="4"],.figure:has(.row[data-key="4"]:focus-visible) [data-part="4"],
+.figure:has(.row[data-key="5"]:hover) [data-part="5"],.figure:has(.row[data-key="5"]:focus-visible) [data-part="5"],
+.figure:has(.row[data-key="6"]:hover) [data-part="6"],.figure:has(.row[data-key="6"]:focus-visible) [data-part="6"],
+.figure:has(.row[data-key="7"]:hover) [data-part="7"],.figure:has(.row[data-key="7"]:focus-visible) [data-part="7"],
+.figure:has(.row[data-key="8"]:hover) [data-part="8"],.figure:has(.row[data-key="8"]:focus-visible) [data-part="8"]{opacity:1}
+
+/* ---- two-up ---- */
+.two{display:grid;grid-template-columns:1.25fr 1fr;gap:22px;align-items:start}
+.two.even{grid-template-columns:1fr 1fr}
+.two.flip{grid-template-columns:1fr 1.25fr}
+
+/* ---- data tables ---- */
+table{width:100%;border-collapse:collapse;border:1px solid var(--line-hard);background:#fff}
+th,td{text-align:left;padding:9px 13px;border-bottom:1px solid var(--line);vertical-align:top;font-size:13.5px}
+th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--sheet);background:var(--ink);font-weight:500;border-bottom:0}
+tr:last-child td{border-bottom:0}
+td.k{font-weight:600;width:26%}
+td.num{font-family:var(--mono);font-size:12.5px;color:var(--immersion);white-space:nowrap;width:24%}
+td.num.el{color:var(--nitrile)}
+.tbl-cap{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);margin:6px 0 0}
+
+/* ---- rank list ---- */
+ol.rank{list-style:none;margin:0;padding:0;border:1px solid var(--line-hard);background:#fff}
+.rank li{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:10px 14px;
+  border-bottom:1px solid var(--line);font-size:13.5px}
+.rank li:last-child{border-bottom:0}
+.rank .tag{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:#fff;background:var(--ink-2);padding:2px 6px;height:fit-content;white-space:nowrap}
+.rank .tag.hi{background:var(--nitrile)} .rank .tag.md{background:var(--immersion)}
+.rank b{font-weight:600;display:block} .rank span{color:var(--ink-2)}
+
+/* ---- do / dont ---- */
+.dd{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line-hard);background:#fff}
+.dd > div{padding:14px 16px}
+.dd .yes{border-right:1px solid var(--line)}
+.dd h5{margin:0 0 8px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase}
+.dd .yes h5{color:#2C6E49} .dd .no h5{color:var(--nitrile)}
+.dd ul{margin:0;padding:0;list-style:none}
+.dd li{padding:5px 0 5px 20px;position:relative;font-size:13.5px;border-bottom:1px dotted var(--line)}
+.dd li:last-child{border-bottom:0}
+.dd .yes li::before{content:"✓";position:absolute;left:0;color:#2C6E49;font-family:var(--mono);font-weight:600}
+.dd .no li::before{content:"✕";position:absolute;left:0;color:var(--nitrile);font-family:var(--mono);font-weight:600}
+
+/* ---- checklist ---- */
+.check{border:1px solid var(--line-hard);background:#fff;counter-reset:c}
+.check li{list-style:none;display:grid;grid-template-columns:auto 1fr;gap:13px;padding:11px 15px;
+  border-bottom:1px solid var(--line);font-size:13.5px}
+.check li:last-child{border-bottom:0}
+.check li::before{counter-increment:c;content:counter(c,decimal-leading-zero);
+  font-family:var(--mono);font-size:11px;color:var(--nitrile);font-weight:600;padding-top:2px}
+.check ol{margin:0;padding:0}
+.check b{display:block;font-weight:600} .check span{color:var(--ink-2)}
+
+.foot{padding:16px 26px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;
+  color:var(--ink-3);border-top:1px solid var(--line-hard);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+@media (max-width:820px){
+  body{padding:12px 8px 48px}
+  .tests,.legend,.two,.two.even,.two.flip,.dd{grid-template-columns:1fr}
+  .row{border-right:0}
+  .dd .yes{border-right:0;border-bottom:1px solid var(--line)}
+  .tb-top{grid-template-columns:1fr;align-items:start}
+  .tb-fields{grid-template-columns:1fr 1fr}
+  .field{padding:6px 16px}
+  section{padding:24px 14px 26px}
+  td.k,td.num{width:auto}
+  .index{position:static}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+</head>
+<body>
+
+<div class="sheet">
+
+<!-- ========================= TITLE BLOCK ========================= -->
+<div class="tb-top">
+  <div>
+    <p class="tb-sub">Ingress protection — decode, detail design, verification</p>
+    <h1 class="tb-subject">IP67 in a<br>robot joint</h1>
+  </div>
+  <div class="plate" aria-label="IP 6 7 code breakdown">
+    <div class="cell"><b>IP</b><span>Ingress<br>protection</span></div>
+    <div class="cell lit"><b>6</b><span>Solids<br>dust-tight</span></div>
+    <div class="cell lit"><b>7</b><span>Liquids<br>immersion</span></div>
+  </div>
+</div>
+<div class="tb-fields">
+  <div class="field">Standard&nbsp; <strong>IEC 60529</strong></div>
+  <div class="field">Test type&nbsp; <strong>Type test, new sample</strong></div>
+  <div class="field">Energised&nbsp; <strong>No, unless specified</strong></div>
+  <div class="field">Scope&nbsp; <strong>Enclosure only</strong></div>
+</div>
+
+<nav class="index" aria-label="Sheet index">
+  <a href="#s1"><b>01</b>Acceptance tests</a>
+  <a href="#s2"><b>02</b>Pressure reality</a>
+  <a href="#s3"><b>03</b>Joint section</a>
+  <a href="#s4"><b>04</b>Static glands</a>
+  <a href="#s5"><b>05</b>Rotary lip seal</a>
+  <a href="#s6"><b>06</b>Equalisation</a>
+  <a href="#s7"><b>07</b>Penetrations</a>
+  <a href="#s8"><b>08</b>Leak map</a>
+  <a href="#s9"><b>09</b>Verification</a>
+  <a href="#s10"><b>10</b>Consequences</a>
+</nav>
+
+<div class="key" aria-label="Drawing conventions">
+  <div><i style="background:repeating-linear-gradient(45deg,#B4BEC3 0 3px,#47586A 3px 4px)"></i>Fixed part</div>
+  <div><i style="background:repeating-linear-gradient(-45deg,#DDE3E5 0 3px,#47586A 3px 4px)"></i>Rotating part</div>
+  <div><i style="background:#B5451B;border-color:#B5451B"></i>Elastomer / seal</div>
+  <div><i style="background:#1C6D8B33;border-color:#1C6D8B"></i>Fluid or air path</div>
+  <div><i style="background:#fff;border-radius:50%;width:14px;height:14px"></i>Callout balloon</div>
+</div>
+
+<!-- ========================= 01 ACCEPTANCE ========================= -->
+<section id="s1">
+  <p class="eyebrow">01 — Acceptance conditions</p>
+  <h2>The two tests you have to pass</h2>
+  <p class="lede">IP67 is not a design description. It is a pair of laboratory tests run on a new, de-energised sample. The numerals are tested independently and the result is pass/fail on ingress, not a leak rate.</p>
+
+  <div class="tests">
+    <!-- DUST -->
+    <div class="test">
+      <div class="test-hd"><span class="digit">6</span><h3>Dust-tight</h3><em>Cl. 13.4</em></div>
+      <svg viewBox="0 0 400 250" role="img" aria-label="Dust chamber test: enclosure inside a talc-filled chamber with a vacuum pump drawing air from its interior">
+        <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#1C6D8B"/></marker></defs>
+        <rect x="34" y="26" width="278" height="176" fill="#F3F6F6" stroke="#16202B" stroke-width="1.6"/>
+        <g fill="#7D8990" opacity=".55">
+          <circle cx="62" cy="52" r="2.2"/><circle cx="96" cy="40" r="1.6"/><circle cx="131" cy="60" r="2.4"/>
+          <circle cx="168" cy="44" r="1.8"/><circle cx="204" cy="58" r="2.1"/><circle cx="243" cy="42" r="1.7"/>
+          <circle cx="278" cy="62" r="2.3"/><circle cx="78" cy="86" r="1.9"/><circle cx="115" cy="100" r="1.5"/>
+          <circle cx="152" cy="82" r="2.2"/><circle cx="190" cy="104" r="1.7"/><circle cx="228" cy="88" r="2"/>
+          <circle cx="264" cy="106" r="1.6"/><circle cx="292" cy="88" r="2.1"/><circle cx="56" cy="122" r="1.8"/>
+          <circle cx="98" cy="140" r="2.2"/><circle cx="140" cy="126" r="1.5"/><circle cx="182" cy="146" r="2"/>
+          <circle cx="222" cy="130" r="1.7"/><circle cx="262" cy="150" r="2.3"/><circle cx="296" cy="132" r="1.6"/>
+          <circle cx="70" cy="170" r="1.9"/><circle cx="126" cy="176" r="1.6"/><circle cx="238" cy="176" r="1.8"/>
+        </g>
+        <path d="M50,190 C50,150 60,120 92,112" fill="none" stroke="#1C6D8B" stroke-width="1.2" marker-end="url(#ar)" opacity=".7"/>
+        <path d="M296,190 C296,150 286,120 254,112" fill="none" stroke="#1C6D8B" stroke-width="1.2" marker-end="url(#ar)" opacity=".7"/>
+        <rect x="128" y="112" width="90" height="62" rx="4" fill="#B4BEC3" stroke="#16202B" stroke-width="1.6"/>
+        <rect x="140" y="124" width="66" height="38" rx="2" fill="#fff" stroke="#16202B" stroke-width=".9" opacity=".8"/>
+        <text x="173" y="148" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#16202B">D.U.T.</text>
+        <path d="M138,174 L138,190 M208,174 L208,190 M118,190 L228,190" stroke="#16202B" stroke-width="1.4" fill="none"/>
+        <path d="M218,132 L340,132" stroke="#16202B" stroke-width="1.6" fill="none"/>
+        <circle cx="360" cy="132" r="19" fill="#fff" stroke="#16202B" stroke-width="1.6"/>
+        <path d="M360,120 L360,144 M348,132 L372,132" stroke="#16202B" stroke-width="1.2"/>
+        <text x="360" y="166" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#47586A">PUMP</text>
+        <path d="M300,124 l-9,8 l9,8" fill="none" stroke="#1C6D8B" stroke-width="1.4"/>
+        <text x="34" y="18" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#47586A" letter-spacing="1">TALC CHAMBER</text>
+        <text x="34" y="222" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#B5451B">PASS = NO DUST INSIDE. AT ALL.</text>
+        <text x="34" y="238" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8994">IP5X allows limited dust; IP6X does not.</text>
+      </svg>
+      <div class="spec">
+        <div><b>Medium</b><i>Talc, passes 75 µm mesh</i></div>
+        <div><b>Concentration</b><i>2 kg per m³ of chamber</i></div>
+        <div><b>Duration</b><i>8 h</i></div>
+        <div><b>Depression</b><i>≤ 2 kPa below ambient</i></div>
+        <div><b>Extraction</b><i>≤ 60 vol/h, stop at 80 vol</i></div>
+        <div><b>Criterion</b><i>No ingress of dust</i></div>
+      </div>
+    </div>
+    <!-- WATER -->
+    <div class="test">
+      <div class="test-hd"><span class="digit">7</span><h3>Immersion</h3><em>Cl. 14.2.7</em></div>
+      <svg viewBox="0 0 400 250" role="img" aria-label="Immersion test: enclosure submerged so its lowest point is 1000 millimetres below the water surface for 30 minutes">
+        <path d="M40,30 L40,214 L330,214 L330,30" fill="none" stroke="#16202B" stroke-width="1.6"/>
+        <path d="M41,62 L329,62 L329,213 L41,213 Z" fill="#1C6D8B" opacity=".13"/>
+        <path d="M41,62 q18,-7 36,0 t36,0 t36,0 t36,0 t36,0 t36,0 t36,0 t36,0" fill="none" stroke="#1C6D8B" stroke-width="1.6"/>
+        <rect x="120" y="120" width="98" height="66" rx="4" fill="#B4BEC3" stroke="#16202B" stroke-width="1.6"/>
+        <rect x="132" y="132" width="74" height="42" rx="2" fill="#fff" stroke="#16202B" stroke-width=".9" opacity=".75"/>
+        <text x="169" y="157" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#16202B">D.U.T.</text>
+        <path d="M262,62 L262,186" stroke="#B5451B" stroke-width="1.2"/>
+        <path d="M258,68 L262,62 L266,68 M258,180 L262,186 L266,180" fill="none" stroke="#B5451B" stroke-width="1.2"/>
+        <path d="M218,186 L262,186" stroke="#B5451B" stroke-width=".8" stroke-dasharray="3 3"/>
+        <rect x="272" y="112" width="82" height="24" fill="#fff" stroke="#B5451B" stroke-width="1"/>
+        <text x="313" y="128" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="600" fill="#B5451B">1000 mm</text>
+        <circle cx="76" cy="98" r="17" fill="#fff" stroke="#16202B" stroke-width="1.4"/>
+        <path d="M76,98 L76,88 M76,98 L84,102" stroke="#16202B" stroke-width="1.6" stroke-linecap="round"/>
+        <text x="76" y="132" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#47586A">30 min</text>
+        <text x="40" y="20" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#47586A" letter-spacing="1">STILL WATER TANK</text>
+        <text x="40" y="234" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8994">Sample &gt; 850 mm tall: top 150 mm below surface instead.</text>
+      </svg>
+      <div class="spec">
+        <div><b>Depth</b><i>Lowest point 1000 mm down</i></div>
+        <div><b>Duration</b><i>30 min</i></div>
+        <div><b>Water Δ Temp</b><i>≤ 5 K vs. sample</i></div>
+        <div><b>State</b><i>De-energised, ambient</i></div>
+        <div><b>Motion</b><i>Static — no jets, no flow</i></div>
+        <div><b>Criterion</b><i>No harmful quantity of water</i></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn">
+    <p><b>The second numeral is not cumulative</b>
+    Passing IPx7 says nothing about jets. A robot that survives 30 minutes under a metre of still water can fail a hose in seconds, because immersion applies uniform hydrostatic pressure while a jet applies concentrated dynamic pressure that can lift a seal lip. Washdown cells need a <strong>dual rating — IP66/IP67</strong>, or <strong>IP69K</strong> for 80&nbsp;°C, 8–10&nbsp;MPa close-range cleaning. Specify both numerals separately.</p>
+  </div>
+</section>
+
+<!-- ========================= 02 PRESSURE REALITY ========================= -->
+<section id="s2">
+  <p class="eyebrow">02 — The governing physics</p>
+  <h2>IP67 is a geometry problem, not a pressure problem</h2>
+  <p class="lede">One metre of water is <span class="chip">9.8 kPa</span> — about a tenth of an atmosphere. No seal in a robot is troubled by that number. What defeats IP67 is capillary paths, surface defects, assembly variation, and a pressure differential the robot generates inside itself that is <em>larger than the test</em>.</p>
+
+  <div class="figure">
+    <svg viewBox="0 0 900 250" role="img" aria-label="Logarithmic pressure scale comparing IP test pressures with the internal pressure a sealed cavity generates when it cools">
+      <!-- axis -->
+      <path d="M70,175 L860,175" stroke="#16202B" stroke-width="1.4"/>
+      <g font-family="IBM Plex Mono, monospace" font-size="10" fill="#7A8994">
+        <g stroke="#16202B" stroke-width="1" opacity=".45">
+          <path d="M80,175 L80,183"/><path d="M260,175 L260,183"/><path d="M440,175 L440,183"/>
+          <path d="M620,175 L620,183"/><path d="M800,175 L800,183"/>
+        </g>
+        <text x="80" y="198" text-anchor="middle">1 kPa</text>
+        <text x="260" y="198" text-anchor="middle">10</text>
+        <text x="440" y="198" text-anchor="middle">100</text>
+        <text x="620" y="198" text-anchor="middle">1 000</text>
+        <text x="800" y="198" text-anchor="middle">10 000 kPa</text>
+        <text x="70" y="228" fill="#47586A" letter-spacing=".8">LOGARITHMIC — EACH STEP IS ×10</text>
+      </g>
+
+      <!-- IPx7 immersion 9.8 kPa -->
+      <g>
+        <rect x="80" y="152" width="178" height="20" fill="#1C6D8B" opacity=".9"/>
+        <path d="M258,152 L258,104" stroke="#1C6D8B" stroke-width="1.1"/>
+        <rect x="176" y="80" width="164" height="24" fill="#fff" stroke="#1C6D8B" stroke-width="1.2"/>
+        <text x="184" y="97" font-family="IBM Plex Mono, monospace" font-size="11.5" font-weight="600" fill="#12556E">IPx7 · 1 m head · 9.8</text>
+      </g>
+
+      <!-- thermal cooldown 12 kPa -->
+      <g>
+        <path d="M275,140 L275,50" stroke="#B5451B" stroke-width="1.4"/>
+        <circle cx="275" cy="140" r="5" fill="#B5451B"/>
+        <rect x="176" y="26" width="266" height="24" fill="#B5451B" />
+        <text x="184" y="43" font-family="IBM Plex Mono, monospace" font-size="11.5" font-weight="600" fill="#fff">SEALED CAVITY, 60→20 °C · 12.2</text>
+      </g>
+
+      <!-- IPx5 30 kPa -->
+      <g>
+        <path d="M346,175 L346,126" stroke="#47586A" stroke-width="1.1"/>
+        <circle cx="346" cy="175" r="4" fill="#47586A"/>
+        <rect x="346" y="112" width="96" height="20" fill="#fff" stroke="#47586A" stroke-width="1"/>
+        <text x="353" y="126" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="#47586A">IPx5 jet · 30</text>
+      </g>
+
+      <!-- IPx6 100 kPa -->
+      <g>
+        <path d="M440,175 L440,152" stroke="#47586A" stroke-width="1.1"/>
+        <circle cx="440" cy="175" r="4" fill="#47586A"/>
+        <rect x="440" y="138" width="120" height="20" fill="#fff" stroke="#47586A" stroke-width="1"/>
+        <text x="447" y="152" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="#47586A">IPx6 jet · ~100</text>
+      </g>
+
+      <!-- IPx9K -->
+      <g>
+        <rect x="782" y="152" width="20" height="20" fill="#16202B"/>
+        <path d="M792,152 L792,112" stroke="#16202B" stroke-width="1.2"/>
+        <rect x="666" y="98" width="194" height="20" fill="#16202B"/>
+        <text x="674" y="112" font-family="IBM Plex Mono, monospace" font-size="10.5" font-weight="600" fill="#fff">IPx9K · 8 000–10 000</text>
+      </g>
+    </svg>
+    <p class="fig-cap">Fig. 1 — Pressure the seal must resist. The internal differential from a single thermal cycle outranks the immersion test itself.</p>
+  </div>
+
+  <div class="two" style="margin-top:22px">
+    <div class="body-col">
+      <p>Seal a joint cavity at 60 °C after a duty cycle, then let it cool to 20 °C. The trapped air follows the gas law at constant volume, so the internal pressure falls to roughly <span class="chip">89 kPa</span> against 101 kPa outside. That is a <strong>12 kPa depression</strong> — greater than the 9.8 kPa the immersion test pushes inward, and it acts in the same direction, pulling water past the lip seal rather than pressing it against its seat.</p>
+      <p>This is why sealed-but-unvented robots pass qualification and then fail in service. The lab test is 30 minutes on a cold, stable unit. The factory runs the arm hot, then a wash-down or a cold night pulls a vacuum through every seal on the machine, several times a day, for years.</p>
+      <p>Two consequences follow, and they drive everything in sections 04 to 07:</p>
+    </div>
+    <div class="dd">
+      <div class="yes">
+        <h5>Therefore design for</h5>
+        <ul>
+          <li>Pressure equalisation on every sealed cavity</li>
+          <li>Consistent squeeze, not high squeeze</li>
+          <li>Short, simple, continuous seal perimeters</li>
+          <li>Surface finish and flatness as controlled dimensions</li>
+          <li>Tolerance stacks that hold squeeze at both limits</li>
+        </ul>
+      </div>
+      <div class="no">
+        <h5>Not for</h5>
+        <ul>
+          <li>Pressure rating — 10 kPa is trivial</li>
+          <li>Anti-extrusion back-up rings</li>
+          <li>Heavier bolts or thicker flanges</li>
+          <li>Harder elastomers, which seal worse</li>
+          <li>A single dramatic seal that saves the design</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 03 JOINT SECTION ========================= -->
+<section id="s3">
+  <p class="eyebrow">03 — Assembly</p>
+  <h2>Where the sealing happens</h2>
+  <p class="lede">A robot is not one enclosure — it is a chain of rotating enclosures, and every joint is a moving interface that must hold a metre of head. Section through a typical cobot joint module. Hover or focus a callout to isolate it. Details A, B and C are drawn out in the following sections.</p>
+
+  <div class="figure">
+    <svg viewBox="0 0 880 470" role="img" aria-label="Section through a robot joint module showing rotary lip seal, static O-ring, pressure-equalisation vent, bonded seal washers, sealed connector, potted encoder, ground counterface and labyrinth slinger">
+      <defs>
+        <pattern id="hA" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+          <rect width="8" height="8" fill="#B4BEC3" opacity=".38"/><line x1="0" y1="0" x2="0" y2="8" stroke="#47586A" stroke-width=".9"/></pattern>
+        <pattern id="hB" width="8" height="8" patternTransform="rotate(-45)" patternUnits="userSpaceOnUse">
+          <rect width="8" height="8" fill="#B4BEC3" opacity=".22"/><line x1="0" y1="0" x2="0" y2="8" stroke="#47586A" stroke-width=".9"/></pattern>
+        <pattern id="hC" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+          <rect width="6" height="6" fill="#16202B" opacity=".1"/><line x1="0" y1="0" x2="0" y2="6" stroke="#16202B" stroke-width=".7"/></pattern>
+      </defs>
+
+      <g id="half">
+        <path d="M120,120 L560,120 L560,158 L120,158 Z" fill="url(#hA)" stroke="#16202B" stroke-width="1.5"/>
+        <path d="M88,120 L120,120 L120,250 L88,250 Z" fill="url(#hA)" stroke="#16202B" stroke-width="1.5"/>
+        <rect x="176" y="160" width="132" height="52" fill="url(#hC)" stroke="#16202B" stroke-width="1.2"/>
+        <path d="M176,214 L470,214 L470,244 L150,244 L150,214 Z" fill="#B4BEC3" stroke="#16202B" stroke-width="1.3"/>
+        <path d="M470,168 L546,168 L546,244 L470,244 Z" fill="url(#hB)" stroke="#16202B" stroke-width="1.4"/>
+        <path d="M470,168 L546,244 M470,206 L546,206" stroke="#16202B" stroke-width=".7" opacity=".45"/>
+        <rect x="548" y="150" width="34" height="62" fill="#fff" stroke="#16202B" stroke-width="1.3"/>
+        <circle cx="565" cy="167" r="7" fill="#B4BEC3" stroke="#16202B" stroke-width="1"/>
+        <circle cx="565" cy="195" r="7" fill="#B4BEC3" stroke="#16202B" stroke-width="1"/>
+        <path d="M584,120 L716,120 L716,250 L660,250 L660,214 L584,214 Z" fill="url(#hB)" stroke="#16202B" stroke-width="1.5"/>
+        <g data-part="7"><path d="M584,120 L584,152" stroke="#B5451B" stroke-width="4" stroke-linecap="round"/></g>
+        <g data-part="8">
+          <path d="M586,156 L604,156 L604,166 L590,166 L590,176 L608,176" fill="none" stroke="#16202B" stroke-width="1.6"/>
+          <circle cx="597" cy="146" r="2.4" fill="#7D8990"/><circle cx="602" cy="171" r="2.4" fill="#7D8990"/></g>
+        <g data-part="1">
+          <path d="M562,122 L584,122 L584,150 L570,150 L562,140 Z" fill="#B5451B" stroke="#16202B" stroke-width="1.2"/>
+          <path d="M566,138 L582,146" stroke="#16202B" stroke-width="1" opacity=".6"/>
+          <path d="M566,128 L580,128" stroke="#16202B" stroke-width=".8" opacity=".45"/></g>
+        <g data-part="2">
+          <circle cx="120" cy="138" r="7.5" fill="#B5451B" stroke="#16202B" stroke-width="1.2"/>
+          <path d="M112.5,131 L127.5,145 M112.5,145 L127.5,131" stroke="#16202B" stroke-width=".7" opacity=".45"/></g>
+        <g data-part="6">
+          <rect x="140" y="176" width="34" height="66" fill="#1C6D8B" opacity=".22" stroke="#16202B" stroke-width="1.2"/>
+          <path d="M144,182 L170,182 M144,192 L170,192" stroke="#1C6D8B" stroke-width="1.4"/>
+          <circle cx="157" cy="216" r="9" fill="none" stroke="#16202B" stroke-width="1.2"/>
+          <path d="M157,207 L157,225 M148,216 L166,216" stroke="#16202B" stroke-width=".8"/></g>
+      </g>
+      <use href="#half" transform="translate(0,500) scale(1,-1)"/>
+
+      <path d="M60,250 L820,250" stroke="#16202B" stroke-width="1" stroke-dasharray="26 5 5 5" opacity=".7"/>
+
+      <g data-part="3">
+        <rect x="330" y="96" width="52" height="24" rx="3" fill="#fff" stroke="#16202B" stroke-width="1.5"/>
+        <path d="M338,108 h36" stroke="#1C6D8B" stroke-width="1.6" stroke-dasharray="3 3"/>
+        <path d="M344,120 L344,132 M356,120 L356,132 M368,120 L368,132" stroke="#16202B" stroke-width="1" opacity=".5"/>
+        <path d="M356,96 L356,84 M352,90 L356,84 L360,90" fill="none" stroke="#1C6D8B" stroke-width="1.4"/>
+        <path d="M340,84 L340,96 M336,90 L340,96 L344,90" fill="none" stroke="#1C6D8B" stroke-width="1.4"/></g>
+      <g data-part="4">
+        <rect x="96" y="98" width="20" height="22" fill="#47586A" stroke="#16202B" stroke-width="1.2"/>
+        <rect x="90" y="120" width="32" height="7" fill="#B5451B" stroke="#16202B" stroke-width="1.1"/>
+        <path d="M100,127 L100,152 M112,127 L112,152" stroke="#16202B" stroke-width="1" opacity=".55"/></g>
+      <g data-part="5">
+        <rect x="34" y="168" width="54" height="42" rx="4" fill="#16202B"/>
+        <rect x="24" y="176" width="12" height="26" rx="2" fill="#47586A" stroke="#16202B" stroke-width="1"/>
+        <circle cx="61" cy="189" r="5" fill="none" stroke="#fff" stroke-width="1.1" opacity=".8"/>
+        <rect x="86" y="166" width="5" height="46" fill="#B5451B"/></g>
+
+      <!-- detail circles -->
+      <g fill="none" stroke="#B5451B" stroke-width="1.3" stroke-dasharray="5 4">
+        <circle cx="120" cy="138" r="30"/><circle cx="576" cy="136" r="34"/><circle cx="356" cy="108" r="32"/>
+      </g>
+      <g font-family="IBM Plex Mono, monospace" font-size="12" font-weight="700" fill="#B5451B">
+        <text x="152" y="176">A</text><text x="608" y="176">B</text><text x="388" y="146">C</text>
+      </g>
+
+      <g font-family="IBM Plex Mono, monospace" font-size="12" font-weight="600">
+        <g stroke="#16202B" stroke-width=".9" fill="none" opacity=".8">
+          <path d="M574,124 L640,64"/><path d="M120,138 L60,86"/><path d="M356,100 L420,52"/>
+          <path d="M106,108 L150,52"/><path d="M44,190 L26,262"/><path d="M157,216 L200,300"/>
+          <path d="M584,136 L700,96"/><path d="M598,166 L690,150"/>
+        </g>
+        <g>
+          <circle cx="648" cy="58" r="13" fill="#fff" stroke="#16202B" stroke-width="1.3"/><text x="648" y="63" text-anchor="middle">1</text>
+          <circle cx="52" cy="80" r="13" fill="#fff" stroke="#16202B" stroke-width="1.3"/><text x="52" y="85" text-anchor="middle">2</text>
+          <circle cx="428" cy="46" r="13" fill="#fff" stroke="#16202B" stroke-width="1.3"/><text x="428" y="51" text-anchor="middle">3</text>
+          <circle cx="158" cy="46" r="13" fill="#fff" stroke="#16202B" stroke-width="1.3"/><text x="158" y="51" text-anchor="middle">4</text>
+          <circle cx="22" cy="272" r="13" fill="#fff" stroke="#16202B" stroke-width="1.3"/><text x="22" y="277" text-anchor="middle">5</text>
+          <circle cx="206" cy="310" r="13" fill="#fff" stroke="#16202B" stroke-width="1.3"/><text x="206" y="315" text-anchor="middle">6</text>
+          <circle cx="710" cy="90" r="13" fill="#fff" stroke="#16202B" stroke-width="1.3"/><text x="710" y="95" text-anchor="middle">7</text>
+          <circle cx="700" cy="146" r="13" fill="#fff" stroke="#16202B" stroke-width="1.3"/><text x="700" y="151" text-anchor="middle">8</text>
+        </g>
+      </g>
+
+      <g font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#7A8994" letter-spacing=".5">
+        <text x="88" y="440">HOUSING — LINK N</text><text x="230" y="440">STATOR</text>
+        <text x="330" y="440">HOLLOW SHAFT / CABLE ROUTE</text><text x="520" y="440">STRAIN WAVE GEAR</text>
+        <text x="650" y="440">OUTPUT FLANGE — LINK N+1</text>
+      </g>
+      <path d="M60,420 L820,420" stroke="#16202B" stroke-width=".8" opacity=".25"/>
+      <g>
+        <path d="M740,190 q14,-6 28,0 t28,0" fill="none" stroke="#1C6D8B" stroke-width="1.6"/>
+        <path d="M740,206 q14,-6 28,0 t28,0" fill="none" stroke="#1C6D8B" stroke-width="1.6" opacity=".6"/>
+        <text x="740" y="176" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#1C6D8B" letter-spacing=".6">WET SIDE</text>
+      </g>
+    </svg>
+    <p class="fig-cap">Fig. 2 — Section A–A through joint module. Adjacent parts hatched in opposing directions per ISO 128. Not to scale.</p>
+
+    <div class="legend">
+      <div class="row" data-key="1" tabindex="0"><span class="no">1</span><div>
+        <h4>Rotary lip seal — detail B</h4>
+        <p>The only seal that has to work while moving. Double-lip, grease-packed: outer lip excludes water and dust, inner lip retains gearbox grease.</p></div></div>
+      <div class="row" data-key="2" tabindex="0"><span class="no">2</span><div>
+        <h4>Static O-ring in a gland — detail A</h4>
+        <p>Every bolted parting line: end covers, service hatches, joint-to-link interfaces. Squeeze and fill are the two dimensions that matter.</p></div></div>
+      <div class="row" data-key="3" tabindex="0"><span class="no">3</span><div>
+        <h4>Pressure-equalisation vent — detail C</h4>
+        <p>The part people leave out, and the reason units pass on day one and fail at month six. Passes air, blocks liquid water.</p></div></div>
+      <div class="row" data-key="4" tabindex="0"><span class="no">4</span><div>
+        <h4>Bonded seal washers on through-bolts</h4>
+        <p>Any fastener breaking into the sealed cavity is a leak path through the thread helix. Blind holes, bonded washers, or anaerobic sealant — pick one rule.</p></div></div>
+      <div class="row" data-key="5" tabindex="0"><span class="no">5</span><div>
+        <h4>Sealed connectors and gland entries</h4>
+        <p>Rated at the mated assembly level. An unmated port is rated only when capped, and the cable core itself can wick water past a perfect gland.</p></div></div>
+      <div class="row" data-key="6" tabindex="0"><span class="no">6</span><div>
+        <h4>Defence in depth on the electronics</h4>
+        <p>Conformal coating, potted encoder cavity, potted connector back-ends. A small ingress event should be a maintenance item, not a dead joint.</p></div></div>
+      <div class="row" data-key="7" tabindex="0"><span class="no">7</span><div>
+        <h4>The counterface, not just the seal</h4>
+        <p>Half of lip-seal performance is the surface it runs on: hardened, plunge-ground, lead-free, concentric, corrosion-protected.</p></div></div>
+      <div class="row" data-key="8" tabindex="0"><span class="no">8</span><div>
+        <h4>Labyrinth and slinger upstream</h4>
+        <p>A non-contacting gap ahead of the lip takes the bulk of the water and debris. Costs no torque, buys most of the seal's life.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 04 STATIC GLANDS ========================= -->
+<section id="s4">
+  <p class="eyebrow">04 — Detail A</p>
+  <h2>Static seals: squeeze, fill, finish</h2>
+  <p class="lede">An O-ring seals because it is deformed, not because it is pressed hard. You are controlling two ratios and one surface. Get those right and static joints stop being a topic; get them wrong and no amount of bolt torque rescues them.</p>
+
+  <div class="two">
+    <div class="figure">
+      <svg viewBox="0 0 560 330" role="img" aria-label="O-ring gland cross-section shown free and installed, with squeeze and groove fill dimensioned">
+        <defs>
+          <pattern id="gA" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+            <rect width="7" height="7" fill="#B4BEC3" opacity=".38"/><line x1="0" y1="0" x2="0" y2="7" stroke="#47586A" stroke-width=".8"/></pattern>
+        </defs>
+
+        <!-- ===== FREE STATE ===== -->
+        <text x="24" y="26" font-family="IBM Plex Mono, monospace" font-size="10" fill="#47586A" letter-spacing="1">FREE STATE</text>
+        <!-- upper flange lifted -->
+        <path d="M24,44 L248,44 L248,74 L24,74 Z" fill="url(#gA)" stroke="#16202B" stroke-width="1.4"/>
+        <!-- lower with groove -->
+        <path d="M24,132 L104,132 L104,178 L168,178 L168,132 L248,132 L248,176 L24,176 Z"
+              fill="url(#gA)" stroke="#16202B" stroke-width="1.4"/>
+        <path d="M24,132 L104,132 M168,132 L248,132" stroke="#16202B" stroke-width="2"/>
+        <!-- o-ring circle -->
+        <circle cx="136" cy="155" r="23" fill="#B5451B" stroke="#16202B" stroke-width="1.3"/>
+        <circle cx="136" cy="155" r="23" fill="none" stroke="#fff" stroke-width="1" opacity=".35"/>
+        <!-- CS dim -->
+        <path d="M136,132 L136,178" stroke="#fff" stroke-width="0"/>
+        <path d="M196,132 L196,178" stroke="#1C6D8B" stroke-width="1"/>
+        <path d="M192,138 L196,132 L200,138 M192,172 L196,178 L200,172" fill="none" stroke="#1C6D8B" stroke-width="1"/>
+        <text x="204" y="159" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="#12556E">CS</text>
+        <!-- groove W dim -->
+        <path d="M104,198 L168,198" stroke="#1C6D8B" stroke-width="1"/>
+        <path d="M110,194 L104,198 L110,202 M162,194 L168,198 L162,202" fill="none" stroke="#1C6D8B" stroke-width="1"/>
+        <text x="136" y="216" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="#12556E">W</text>
+        <!-- depth D -->
+        <path d="M88,132 L88,178" stroke="#1C6D8B" stroke-width="1" stroke-dasharray="3 2"/>
+        <text x="60" y="160" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="#12556E">D</text>
+        <!-- gap arrows -->
+        <path d="M136,80 L136,124 M131,116 L136,124 L141,116" fill="none" stroke="#16202B" stroke-width="1.2"/>
+
+        <!-- ===== INSTALLED ===== -->
+        <text x="312" y="26" font-family="IBM Plex Mono, monospace" font-size="10" fill="#47586A" letter-spacing="1">INSTALLED · 25% SQUEEZE</text>
+        <path d="M312,88 L536,88 L536,132 L312,132 Z" fill="url(#gA)" stroke="#16202B" stroke-width="1.4"/>
+        <path d="M312,132 L536,132" stroke="#16202B" stroke-width="2"/>
+        <path d="M312,132 L392,132 L392,178 L456,178 L456,132 L536,132 L536,176 L312,176 Z"
+              fill="url(#gA)" stroke="#16202B" stroke-width="1.4"/>
+        <!-- squeezed o-ring -->
+        <ellipse cx="424" cy="155" rx="27" ry="23" fill="#B5451B" stroke="#16202B" stroke-width="1.3"/>
+        <path d="M397,155 a27,23 0 0 1 54,0" fill="#B5451B"/>
+        <rect x="397" y="132" width="54" height="46" fill="none"/>
+        <!-- contact bands -->
+        <path d="M406,132.5 L442,132.5" stroke="#16202B" stroke-width="3.4" stroke-linecap="round"/>
+        <path d="M406,177.5 L442,177.5" stroke="#16202B" stroke-width="3.4" stroke-linecap="round"/>
+        <text x="470" y="126" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#16202B">SEAL BAND</text>
+        <!-- free volume -->
+        <path d="M394,138 L400,138 M394,150 L400,150 M394,162 L400,162
+                 M448,138 L454,138 M448,150 L454,150 M448,162 L454,162" stroke="#1C6D8B" stroke-width="1.4"/>
+        <text x="462" y="200" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#12556E">FREE VOLUME</text>
+        <path d="M458,196 L452,182" stroke="#1C6D8B" stroke-width=".9"/>
+        <!-- squeeze dim -->
+        <path d="M356,132 L356,178" stroke="#B5451B" stroke-width="1"/>
+        <path d="M352,138 L356,132 L360,138 M352,172 L356,178 L360,172" fill="none" stroke="#B5451B" stroke-width="1"/>
+        <text x="322" y="159" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="#B5451B">D</text>
+
+        <!-- formulae -->
+        <path d="M24,242 L536,242" stroke="#16202B" stroke-width=".9" opacity=".3"/>
+        <g font-family="IBM Plex Mono, monospace" font-size="12.5" fill="#16202B">
+          <text x="24" y="272">SQUEEZE  =  (CS − D) / CS</text>
+          <text x="24" y="298" fill="#12556E">target 20–30 % axial face · 15–25 % radial</text>
+          <text x="300" y="272">FILL  =  A(o-ring) / A(groove)</text>
+          <text x="300" y="298" fill="#12556E">target 60–85 % · never above 90 %</text>
+        </g>
+        <text x="24" y="322" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#7A8994">Check both at MMC and LMC of the tolerance stack, not at nominal.</text>
+      </svg>
+      <p class="fig-cap">Fig. 3 — Detail A. Face-seal gland, free and installed.</p>
+    </div>
+
+    <div>
+      <table>
+        <thead><tr><th>Parameter</th><th>Target</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Squeeze, face seal</td><td class="num el">20 – 30 %</td></tr>
+          <tr><td class="k">Squeeze, radial seal</td><td class="num el">15 – 25 %</td></tr>
+          <tr><td class="k">Groove fill</td><td class="num">60 – 85 %</td></tr>
+          <tr><td class="k">Sealing face finish</td><td class="num">Ra 0.4 – 1.6 µm</td></tr>
+          <tr><td class="k">Groove side/base finish</td><td class="num">Ra ≤ 3.2 µm</td></tr>
+          <tr><td class="k">Groove side draft</td><td class="num">0 – 5°</td></tr>
+          <tr><td class="k">Groove base radius</td><td class="num">0.1 – 0.3 mm</td></tr>
+          <tr><td class="k">Shore hardness</td><td class="num el">70 ± 5 A</td></tr>
+          <tr><td class="k">Compression set</td><td class="num el">≤ 25 % @ 70 h</td></tr>
+        </tbody>
+      </table>
+      <p class="tbl-cap">Tab. 1 — Static gland starting values. Verify against ISO 3601-2 and the seal maker's own gland tables.</p>
+    </div>
+  </div>
+
+  <h3 class="sub">The rules that actually decide it</h3>
+  <div class="two even">
+    <div class="body-col">
+      <p><strong>Squeeze must survive the tolerance stack.</strong> Nominal 25 % squeeze is meaningless if the worst-case stack of groove depth, flange flatness and part thickness lands you at 8 % on one corner. Run the stack at both extremes; the low limit must still exceed roughly 15 %, and the high limit must not overfill the groove.</p>
+      <p><strong>Fill above 90 % is a failure mode, not a safety margin.</strong> The elastomer is effectively incompressible — it needs free volume to flow into. Thermal expansion, swell from cutting fluid, and the squeeze itself all consume that space. An overfilled groove forces the flange open and lifts the seal band.</p>
+      <p><strong>Machining direction matters more than roughness number.</strong> A face-sealed flange turned on a lathe carries a fine spiral. That spiral is a helical channel across the seal band and will siphon water even at Ra 0.8. Face-mill, grind, or turn with a wiping insert, and specify "no continuous radial or spiral tool marks across the sealing band" as a note on the drawing.</p>
+    </div>
+    <div class="body-col">
+      <p><strong>Prefer a face seal to a radial gland</strong> in a bolted robot housing. Face seals set their squeeze from a machined depth against a hard metal-to-metal stop, so squeeze does not depend on bolt torque. Radial glands depend on a diametral fit and are far more sensitive to concentricity between two large castings.</p>
+      <p><strong>Keep the perimeter continuous and gentle.</strong> Every corner is a stretch or compression discontinuity. Inside radii below about 3× cord diameter cause the ring to bunch and lift. Avoid splicing rings on site; use a single moulded ring or a form-in-place silicone bead dispensed by a robot with an inline flow check.</p>
+      <p><strong>Cross-holes are the classic leak.</strong> A dowel hole, a bolt hole, or a drilled oil passage that breaks through the groove floor gives water a route under the seal band. Audit the CAD by cutting the groove floor as a surface and checking for any intersecting feature.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 05 LIP SEAL ========================= -->
+<section id="s5">
+  <p class="eyebrow">05 — Detail B</p>
+  <h2>The rotary seal, and the surface under it</h2>
+  <p class="lede">This is the only interface that is asked to seal while moving, and it is the one that consumes torque, generates heat and wears out. Half of its performance is not in the seal — it is in the counterface you grind for it to run on.</p>
+
+  <div class="figure">
+    <svg viewBox="0 0 900 400" role="img" aria-label="Anatomy of a double-lip rotary shaft seal, with a magnified view of the contact band and the counterface specification">
+      <defs>
+        <pattern id="lA" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+          <rect width="7" height="7" fill="#B4BEC3" opacity=".38"/><line x1="0" y1="0" x2="0" y2="7" stroke="#47586A" stroke-width=".8"/></pattern>
+        <pattern id="lB" width="7" height="7" patternTransform="rotate(-45)" patternUnits="userSpaceOnUse">
+          <rect width="7" height="7" fill="#B4BEC3" opacity=".22"/><line x1="0" y1="0" x2="0" y2="7" stroke="#47586A" stroke-width=".8"/></pattern>
+      </defs>
+
+      <!-- housing bore -->
+      <path d="M60,40 L360,40 L360,116 L300,116 L300,86 L120,86 L120,116 L60,116 Z" fill="url(#lA)" stroke="#16202B" stroke-width="1.5"/>
+      <text x="66" y="60" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#47586A">HOUSING BORE — PRESS FIT</text>
+
+      <!-- shaft / counterface -->
+      <path d="M60,250 L420,250 L420,300 L60,300 Z" fill="url(#lB)" stroke="#16202B" stroke-width="1.5"/>
+      <path d="M60,250 L400,250" stroke="#B5451B" stroke-width="4"/>
+      <path d="M400,250 L420,232" stroke="#16202B" stroke-width="1.5"/>
+      <text x="66" y="284" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#47586A">OUTPUT SHAFT / FLANGE</text>
+      <text x="330" y="322" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#B5451B">20° LEAD-IN CHAMFER</text>
+      <path d="M386,314 L404,258" stroke="#B5451B" stroke-width=".9"/>
+
+      <!-- seal case -->
+      <path d="M124,90 L296,90 L296,112 L284,112 L284,102 L136,102 L136,112 L124,112 Z" fill="#47586A" stroke="#16202B" stroke-width="1.2"/>
+      <text x="302" y="100" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#47586A">STEEL CASE</text>
+
+      <!-- elastomer body + lips -->
+      <path d="M136,102 L284,102 L284,150 L262,196 L250,246 L238,246 L232,196 L196,178 L176,246 L164,246
+               L158,178 L136,150 Z" fill="#B5451B" stroke="#16202B" stroke-width="1.3"/>
+      <!-- garter spring -->
+      <circle cx="245" cy="196" r="12" fill="#fff" stroke="#16202B" stroke-width="1.3"/>
+      <path d="M236,188 L254,204 M236,196 L254,196 M236,204 L254,188" stroke="#16202B" stroke-width=".9"/>
+      <text x="266" y="182" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#16202B">GARTER SPRING</text>
+
+      <!-- labels -->
+      <text x="258" y="272" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#16202B">PRIMARY LIP</text>
+      <path d="M256,266 L244,252" stroke="#16202B" stroke-width=".9"/>
+      <text x="96" y="216" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#16202B">DUST LIP</text>
+      <path d="M136,216 L166,240" stroke="#16202B" stroke-width=".9"/>
+      <text x="150" y="150" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#12556E">GREASE POCKET · 30–50 % FILL</text>
+      <circle cx="200" cy="212" r="3" fill="#1C6D8B"/><circle cx="212" cy="222" r="2.4" fill="#1C6D8B"/>
+      <circle cx="190" cy="226" r="2.2" fill="#1C6D8B"/>
+
+      <!-- side labels -->
+      <g font-family="IBM Plex Mono, monospace" font-size="10.5" font-weight="600">
+        <text x="300" y="228" fill="#12556E">MEDIUM SIDE →</text>
+        <text x="66" y="228" fill="#1C6D8B">← WET SIDE</text>
+      </g>
+      <path d="M60,236 L120,236" stroke="#1C6D8B" stroke-width="1.2" stroke-dasharray="4 3"/>
+      <path d="M300,236 L360,236" stroke="#12556E" stroke-width="1.2" stroke-dasharray="4 3"/>
+
+      <!-- detail circle + magnified -->
+      <circle cx="244" cy="242" r="30" fill="none" stroke="#B5451B" stroke-width="1.3" stroke-dasharray="5 4"/>
+      <path d="M272,224 L520,150" stroke="#B5451B" stroke-width=".9" stroke-dasharray="4 3"/>
+      <path d="M270,262 L520,320" stroke="#B5451B" stroke-width=".9" stroke-dasharray="4 3"/>
+
+      <g>
+        <circle cx="690" cy="236" r="118" fill="#fff" stroke="#B5451B" stroke-width="1.4"/>
+        <clipPath id="mag"><circle cx="690" cy="236" r="117"/></clipPath>
+        <g clip-path="url(#mag)">
+          <path d="M572,300 L810,300 L810,360 L572,360 Z" fill="url(#lB)" stroke="#16202B" stroke-width="1.5"/>
+          <path d="M572,300 L810,300" stroke="#B5451B" stroke-width="5"/>
+          <path d="M600,120 L700,120 L706,240 L688,300 L664,300 L648,240 L620,220 Z" fill="#B5451B" stroke="#16202B" stroke-width="1.4"/>
+          <path d="M664,300 L688,300" stroke="#16202B" stroke-width="6" stroke-linecap="round"/>
+          <path d="M664,306 L688,306" stroke="#1C6D8B" stroke-width="1.2"/>
+          <path d="M660,320 L692,320" stroke="#12556E" stroke-width="1"/>
+          <path d="M664,316 L660,320 L664,324 M688,316 L692,320 L688,324" fill="none" stroke="#12556E" stroke-width="1"/>
+          <text x="700" y="326" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="#12556E">0.1–0.3 mm</text>
+          <text x="716" y="344" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#7A8994">CONTACT BAND</text>
+          <circle cx="640" cy="270" r="9" fill="#fff" stroke="#16202B" stroke-width="1.2"/>
+          <path d="M633,264 L647,276 M633,276 L647,264" stroke="#16202B" stroke-width=".8"/>
+        </g>
+        <text x="600" y="128" font-family="IBM Plex Mono, monospace" font-size="10" fill="#B5451B" letter-spacing="1">DETAIL B — CONTACT</text>
+      </g>
+    </svg>
+    <p class="fig-cap">Fig. 4 — Detail B. Double-lip radial shaft seal. Primary lip faces the medium it retains; dust lip faces the environment.</p>
+  </div>
+
+  <div class="two even" style="margin-top:22px">
+    <div>
+      <table>
+        <thead><tr><th>Counterface</th><th>Requirement</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Roughness</td><td class="num">Ra 0.2 – 0.5 µm</td></tr>
+          <tr><td class="k">Bearing ratio</td><td class="num">Rz 1 – 4 µm</td></tr>
+          <tr><td class="k">Machining lead</td><td class="num el">Zero. Plunge grind.</td></tr>
+          <tr><td class="k">Hardness</td><td class="num">≥ 45 HRC preferred</td></tr>
+          <tr><td class="k">Lead-in chamfer</td><td class="num">15 – 20°, deburred</td></tr>
+          <tr><td class="k">Dynamic runout</td><td class="num">≤ 0.1 mm at the lip</td></tr>
+          <tr><td class="k">Shaft-to-bore misalign.</td><td class="num">≤ 0.2 mm</td></tr>
+          <tr><td class="k">Surface treatment</td><td class="num">Hard chrome / nitride / ceramic</td></tr>
+        </tbody>
+      </table>
+      <p class="tbl-cap">Tab. 2 — Counterface spec. Per ISO 6194 / DIN 3760 practice.</p>
+    </div>
+    <div class="body-col">
+      <p><strong>Lead is the silent killer.</strong> A turned shaft carries a microscopic helix. Under a rotating lip that helix acts as an Archimedes screw and pumps fluid in one direction — so the seal leaks in one direction of joint travel and looks fine in the other. Specify plunge grinding, and test both directions of rotation during qualification.</p>
+      <p><strong>Never let the lip pass a sharp edge.</strong> Assembly damage is the single largest cause of infant-mortality leaks. Provide a proper lead-in chamfer, use an installation cone or a mandrel, lubricate the lip on assembly, and make it physically impossible to install the seal backwards — asymmetric case, or a shouldered bore.</p>
+      <p><strong>Choose which side to seal.</strong> On the low-speed output the seal diameter is large, so drag torque is high but sliding speed and wear are low. On the high-speed motor shaft the diameter is small and drag is low, but sliding speed is 100× higher and life drops accordingly. Robot joints almost always seal at the output, because that is where the enclosure boundary physically is — accept the drag and compensate for it.</p>
+    </div>
+  </div>
+
+  <h3 class="sub">Elastomer selection</h3>
+  <table>
+    <thead><tr><th>Compound</th><th>Range</th><th>Use it when</th><th>It fails on</th></tr></thead>
+    <tbody>
+      <tr><td class="k">NBR / nitrile</td><td class="num">−30 to +100 °C</td><td>General industrial default. Good with mineral oils and greases, cheap, widely stocked.</td><td>Ozone, many sanitisers, hot water, strong solvents.</td></tr>
+      <tr><td class="k">HNBR</td><td class="num">−30 to +150 °C</td><td>Same chemistry envelope as NBR with better heat and wear resistance.</td><td>Ketones, strong acids. Costs more.</td></tr>
+      <tr><td class="k">FKM / fluoroelastomer</td><td class="num">−20 to +200 °C</td><td>Solvents, cutting fluids, high joint temperatures, long life.</td><td>Steam, hot water, amines. Poor low-temperature flexibility.</td></tr>
+      <tr><td class="k">EPDM</td><td class="num">−45 to +150 °C</td><td>Steam, hot water, caustic wash-down chemistry, food cells.</td><td>Mineral oil and grease — will swell badly. Never near gearbox lube.</td></tr>
+      <tr><td class="k">PTFE / filled PTFE</td><td class="num">−100 to +200 °C</td><td>Dry running, low drag, chemically indifferent, high sliding speed.</td><td>Needs a much better counterface; less forgiving of runout; higher cost.</td></tr>
+      <tr><td class="k">Silicone (VMQ)</td><td class="num">−60 to +200 °C</td><td>Form-in-place static beads, wide temperature range, low compression set.</td><td>Abrasion and dynamic duty. Static use only.</td></tr>
+    </tbody>
+  </table>
+  <p class="tbl-cap">Tab. 3 — Match the compound to the customer's cleaning chemistry, not to a generic spec line. The classic mistake is EPDM anywhere near grease, or NBR in a food cell.</p>
+</section>
+
+<!-- ========================= 06 EQUALISATION ========================= -->
+<section id="s6">
+  <p class="eyebrow">06 — Detail C</p>
+  <h2>Pressure equalisation, the part that is always missing</h2>
+  <p class="lede">A hydrophobic ePTFE membrane lets air move in and out of the cavity while blocking liquid water. It is a two-dollar part that decides whether your seals see 12 kPa of differential every duty cycle or none at all.</p>
+
+  <div class="figure">
+    <svg viewBox="0 0 900 320" role="img" aria-label="Left: hydrophobic membrane passing air and blocking a water droplet. Right: cavity pressure over a heat and cool cycle, with and without a vent">
+      <!-- === left: membrane === -->
+      <text x="30" y="26" font-family="IBM Plex Mono, monospace" font-size="10" fill="#47586A" letter-spacing="1">MEMBRANE ACTION</text>
+      <rect x="30" y="42" width="330" height="234" fill="#fff" stroke="#16202B" stroke-width="1.2"/>
+      <!-- housing wall -->
+      <path d="M30,150 L150,150 L150,178 L30,178 Z" fill="#B4BEC3" stroke="#16202B" stroke-width="1.3"/>
+      <path d="M240,150 L360,150 L360,178 L240,178 Z" fill="#B4BEC3" stroke="#16202B" stroke-width="1.3"/>
+      <!-- membrane -->
+      <rect x="150" y="150" width="90" height="28" fill="#1C6D8B" opacity=".16" stroke="#1C6D8B" stroke-width="1.4"/>
+      <g stroke="#1C6D8B" stroke-width="1" opacity=".7">
+        <path d="M158,150 L162,178"/><path d="M172,150 L168,178"/><path d="M186,150 L190,178"/>
+        <path d="M200,150 L196,178"/><path d="M214,150 L218,178"/><path d="M228,150 L224,178"/>
+      </g>
+      <text x="195" y="196" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#12556E">ePTFE · ~0.2 µm PORES</text>
+      <!-- air arrows through -->
+      <g stroke="#12556E" stroke-width="1.6" fill="none">
+        <path d="M120,124 L270,124"/><path d="M262,118 L270,124 L262,130"/>
+        <path d="M270,204 L120,204"/><path d="M128,198 L120,204 L128,210"/>
+      </g>
+      <text x="120" y="112" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#12556E">AIR OUT — HEATING</text>
+      <text x="150" y="226" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#12556E">AIR IN — COOLING</text>
+      <!-- water droplet blocked -->
+      <path d="M300,96 c0,-16 -14,-22 -14,-34 0,-8 6,-14 14,-14 s14,6 14,14 c0,12 -14,18 -14,34 Z"
+            transform="rotate(180 300 74)" fill="#1C6D8B" opacity=".55" stroke="#1C6D8B" stroke-width="1.2"/>
+      <path d="M300,102 L300,142 M294,134 L300,142 L306,134" fill="none" stroke="#1C6D8B" stroke-width="1.4"/>
+      <g stroke="#B5451B" stroke-width="2.4"><path d="M282,254 L300,236 M282,236 L300,254"/></g>
+      <text x="310" y="252" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#B5451B">WATER BLOCKED</text>
+      <text x="40" y="266" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8994">Specify water entry pressure &gt; 20 kPa for IP67 duty.</text>
+
+      <!-- === right: pressure chart === -->
+      <text x="410" y="26" font-family="IBM Plex Mono, monospace" font-size="10" fill="#47586A" letter-spacing="1">CAVITY PRESSURE · ONE DUTY CYCLE</text>
+      <rect x="410" y="42" width="460" height="234" fill="#fff" stroke="#16202B" stroke-width="1.2"/>
+      <!-- axes -->
+      <path d="M470,58 L470,250 L850,250" stroke="#16202B" stroke-width="1.2" fill="none"/>
+      <!-- ambient -->
+      <path d="M470,150 L850,150" stroke="#16202B" stroke-width="1" stroke-dasharray="6 4" opacity=".6"/>
+      <text x="424" y="154" font-family="IBM Plex Mono, monospace" font-size="9" fill="#47586A">AMBIENT</text>
+      <!-- ingress threshold -->
+      <path d="M470,206 L850,206" stroke="#B5451B" stroke-width="1" stroke-dasharray="3 3"/>
+      <rect x="470" y="206" width="380" height="44" fill="#B5451B" opacity=".07"/>
+      <text x="480" y="222" font-family="IBM Plex Mono, monospace" font-size="9" fill="#B5451B">−9.8 kPa · WATER IS DRAWN IN</text>
+      <!-- unvented curve -->
+      <path d="M470,150 C520,150 545,96 600,92 C660,88 690,100 720,150 C752,204 790,232 850,236"
+            fill="none" stroke="#B5451B" stroke-width="2.4"/>
+      <circle cx="790" cy="226" r="5" fill="#B5451B"/>
+      <text x="700" y="272" font-family="IBM Plex Mono, monospace" font-size="10" font-weight="600" fill="#B5451B">UNVENTED</text>
+      <!-- vented curve -->
+      <path d="M470,150 C540,148 600,152 660,149 C720,151 790,149 850,150" fill="none" stroke="#12556E" stroke-width="2.4"/>
+      <text x="560" y="140" font-family="IBM Plex Mono, monospace" font-size="10" font-weight="600" fill="#12556E">VENTED</text>
+      <!-- temp track -->
+      <text x="500" y="72" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8994">MOTION</text>
+      <text x="740" y="72" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8994">IDLE / WASH-DOWN</text>
+      <path d="M470,80 L700,80" stroke="#C08A1E" stroke-width="3"/>
+      <path d="M700,80 L850,80" stroke="#1C6D8B" stroke-width="3"/>
+      <text x="640" y="266" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8994">TIME →</text>
+    </svg>
+    <p class="fig-cap">Fig. 5 — Detail C. Without equalisation, the cooling half of every duty cycle pulls the cavity below the ingress threshold.</p>
+  </div>
+
+  <div class="two even" style="margin-top:22px">
+    <div class="body-col">
+      <p><strong>What to specify.</strong> Water entry pressure comfortably above the test head — <span class="chip">≥ 20 kPa</span> for IP67, higher for IP68 or IP69K duty. Airflow sized so the cavity can equalise faster than it heats: for a joint cavity of a few hundred millilitres and a normal thermal ramp, something in the region of <span class="chip">50–500 ml/min at 7 kPa</span> is generous. Mounting is snap-in, threaded (M12×1.5 is common) or a self-adhesive patch over a drilled hole.</p>
+      <p><strong>Where to put it.</strong> Somewhere that never sits in standing water through the arm's full range of motion, never takes a direct wash-down jet, and is not on the underside of a link where condensate collects. A small shroud or a recessed pocket is cheap insurance. One vent per sealed cavity — and a robot joint often has two cavities, motor side and gearbox side, if the lip seal separates them.</p>
+    </div>
+    <div class="body-col">
+      <p><strong>It also solves condensation.</strong> A perfectly sealed cavity assembled on a humid day contains humid air. Cool it below the dew point and you get liquid water inside an enclosure that never leaked. The vent lets that vapour leave during the warm part of the cycle. Assembling in a humidity-controlled area helps, but venting is what actually fixes it.</p>
+      <p><strong>Oleophobic if there is oil mist.</strong> Standard hydrophobic membranes are defeated by oils and surfactants, which lower surface tension and wet the pores. In cells with cutting fluid or lubricant aerosols, specify the oleophobic grade — and protect the vent from direct spray regardless.</p>
+      <p><strong>Do not "vent" with a labyrinth or a drain hole.</strong> That is just an unrated opening. The membrane is what makes the vent compatible with the IP claim, and the vent assembly itself must carry its own rating.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 07 PENETRATIONS ========================= -->
+<section id="s7">
+  <p class="eyebrow">07 — Penetrations</p>
+  <h2>Fasteners, connectors and the cable itself</h2>
+  <p class="lede">Every hole through the enclosure wall is a decision. There are only three legitimate fastener strategies, and the cable that passes a perfectly sealed gland can still carry water into the joint along the inside of its own jacket.</p>
+
+  <div class="figure">
+    <svg viewBox="0 0 900 300" role="img" aria-label="Three fastener strategies compared: blind hole, bonded seal washer, and an unsealed through-bolt leaking along the thread helix">
+      <defs>
+        <pattern id="fA" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+          <rect width="7" height="7" fill="#B4BEC3" opacity=".38"/><line x1="0" y1="0" x2="0" y2="7" stroke="#47586A" stroke-width=".8"/></pattern>
+      </defs>
+
+      <!-- panel 1 : blind hole -->
+      <g>
+        <text x="30" y="28" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="#2C6E49" letter-spacing=".8">✓ BLIND TAPPED HOLE — BEST</text>
+        <path d="M30,60 L262,60 L262,96 L30,96 Z" fill="url(#fA)" stroke="#16202B" stroke-width="1.4"/>
+        <path d="M30,96 L262,96 L262,196 L30,196 Z" fill="url(#fA)" stroke="#16202B" stroke-width="1.4"/>
+        <path d="M30,96 L262,96" stroke="#16202B" stroke-width="2"/>
+        <rect x="126" y="34" width="40" height="26" fill="#47586A" stroke="#16202B" stroke-width="1.2"/>
+        <rect x="134" y="60" width="24" height="102" fill="#7D8990" stroke="#16202B" stroke-width="1.1"/>
+        <g stroke="#16202B" stroke-width=".8" opacity=".6">
+          <path d="M134,106 L158,112"/><path d="M134,118 L158,124"/><path d="M134,130 L158,136"/><path d="M134,142 L158,148"/></g>
+        <path d="M130,196 L162,196" stroke="#16202B" stroke-width="2.4"/>
+        <text x="176" y="188" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#2C6E49">NO BREAK-THROUGH</text>
+        <path d="M30,220 L262,220" stroke="#1C6D8B" stroke-width="1.6"/>
+        <text x="30" y="240" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#12556E">SEALED CAVITY BELOW</text>
+        <text x="30" y="262" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8994">Costs 2–4 mm of extra boss depth.</text>
+        <text x="30" y="278" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8994">Nothing to install, nothing to forget.</text>
+      </g>
+
+      <!-- panel 2 : bonded washer -->
+      <g>
+        <text x="330" y="28" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="#2C6E49" letter-spacing=".8">✓ BONDED SEAL WASHER</text>
+        <path d="M330,60 L562,60 L562,96 L330,96 Z" fill="url(#fA)" stroke="#16202B" stroke-width="1.4"/>
+        <path d="M330,96 L562,96 L562,196 L330,196 Z" fill="url(#fA)" stroke="#16202B" stroke-width="1.4"/>
+        <rect x="426" y="20" width="40" height="26" fill="#47586A" stroke="#16202B" stroke-width="1.2"/>
+        <rect x="416" y="46" width="60" height="12" fill="#B5451B" stroke="#16202B" stroke-width="1.1"/>
+        <rect x="422" y="49" width="48" height="6" fill="#7D8990"/>
+        <rect x="434" y="58" width="24" height="150" fill="#7D8990" stroke="#16202B" stroke-width="1.1"/>
+        <g stroke="#16202B" stroke-width=".8" opacity=".6">
+          <path d="M434,110 L458,116"/><path d="M434,122 L458,128"/><path d="M434,134 L458,140"/>
+          <path d="M434,146 L458,152"/><path d="M434,158 L458,164"/><path d="M434,170 L458,176"/></g>
+        <text x="490" y="52" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#B5451B">ELASTOMER BONDED</text>
+        <text x="490" y="66" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#B5451B">TO STEEL WASHER</text>
+        <path d="M330,220 L562,220" stroke="#1C6D8B" stroke-width="1.6"/>
+        <text x="330" y="240" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#12556E">SEALED CAVITY BELOW</text>
+        <text x="330" y="262" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8994">Seals under the head, not in the thread.</text>
+        <text x="330" y="278" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8994">Needs a flat, finished spot-face.</text>
+      </g>
+
+      <!-- panel 3 : bare bolt -->
+      <g>
+        <text x="630" y="28" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="#B5451B" letter-spacing=".8">✕ BARE THROUGH-BOLT</text>
+        <path d="M630,60 L862,60 L862,96 L630,96 Z" fill="url(#fA)" stroke="#16202B" stroke-width="1.4"/>
+        <path d="M630,96 L862,96 L862,196 L630,196 Z" fill="url(#fA)" stroke="#16202B" stroke-width="1.4"/>
+        <rect x="726" y="34" width="40" height="26" fill="#47586A" stroke="#16202B" stroke-width="1.2"/>
+        <rect x="734" y="60" width="24" height="150" fill="#7D8990" stroke="#16202B" stroke-width="1.1"/>
+        <g stroke="#16202B" stroke-width=".8" opacity=".6">
+          <path d="M734,110 L758,116"/><path d="M734,122 L758,128"/><path d="M734,134 L758,140"/>
+          <path d="M734,146 L758,152"/><path d="M734,158 L758,164"/><path d="M734,170 L758,176"/></g>
+        <!-- leak path -->
+        <path d="M746,62 L734,110 L758,128 L734,146 L758,164 L740,206"
+              fill="none" stroke="#1C6D8B" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M734,198 L740,208 L747,199" fill="none" stroke="#1C6D8B" stroke-width="2"/>
+        <text x="778" y="130" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#1C6D8B">WATER FOLLOWS</text>
+        <text x="778" y="144" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#1C6D8B">THE THREAD HELIX</text>
+        <path d="M630,220 L862,220" stroke="#B5451B" stroke-width="1.6"/>
+        <text x="630" y="240" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#B5451B">INGRESS</text>
+        <text x="630" y="262" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8994">A thread is a spiral channel, not a seal —</text>
+        <text x="630" y="278" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8994">torque does not close it.</text>
+      </g>
+    </svg>
+    <p class="fig-cap">Fig. 6 — Fastener strategies. Anaerobic thread sealant is a valid fourth option but depends on a process step, so it ranks below the two geometric solutions.</p>
+  </div>
+
+  <div class="two flip" style="margin-top:22px">
+    <div class="body-col">
+      <h3 class="sub" style="margin-top:0;border-top:0;padding-top:0">Connectors and cable entries</h3>
+      <p><strong>Rated only when mated.</strong> An M12 or push-pull connector carries its IP rating as a mated pair with the correct torque or latch engagement. Every unused port needs its sealing cap fitted, and the cap must be captive or the field will lose it. Treat caps as line items on the BOM and on the commissioning checklist, not as accessories.</p>
+      <p><strong>Match the gland to the cable, not to the hole.</strong> Cable glands seal over a clamping range. A jacket at the bottom of the range compresses unevenly, and an oval or ribbed jacket never seals at all. Specify round, smooth-jacketed cable, and confirm the actual jacket OD from the cable datasheet rather than the nominal.</p>
+      <p><strong>Give it a drip loop and a strain relief.</strong> Water runs down a cable and collects at the entry. Route so the cable approaches from below, and take the mechanical load in a clamp ahead of the gland, so the gland only seals and never carries tension.</p>
+    </div>
+    <div class="figure">
+      <svg viewBox="0 0 480 300" role="img" aria-label="Cable cross-section showing water wicking through the interstitial voids between conductors, and the potted backshell that blocks it">
+        <text x="24" y="26" font-family="IBM Plex Mono, monospace" font-size="10" fill="#B5451B" letter-spacing=".8">THE PATH INSIDE THE CABLE</text>
+        <!-- cable section -->
+        <circle cx="120" cy="130" r="76" fill="#16202B" opacity=".08" stroke="#16202B" stroke-width="1.6"/>
+        <circle cx="120" cy="130" r="62" fill="#fff" stroke="#16202B" stroke-width="1.1"/>
+        <g>
+          <circle cx="120" cy="86" r="22" fill="#B4BEC3" stroke="#16202B" stroke-width="1.1"/>
+          <circle cx="158" cy="152" r="22" fill="#B4BEC3" stroke="#16202B" stroke-width="1.1"/>
+          <circle cx="82" cy="152" r="22" fill="#B4BEC3" stroke="#16202B" stroke-width="1.1"/>
+          <circle cx="120" cy="130" r="14" fill="#B4BEC3" stroke="#16202B" stroke-width="1.1"/>
+        </g>
+        <!-- voids -->
+        <g fill="#1C6D8B" opacity=".8">
+          <path d="M120,110 q22,4 20,24 q-22,-6 -20,-24 Z"/>
+          <path d="M104,140 q-14,16 -6,30 q16,-12 6,-30 Z"/>
+          <path d="M138,140 q14,16 6,30 q-16,-12 -6,-30 Z"/>
+        </g>
+        <text x="212" y="104" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#12556E">INTERSTITIAL VOIDS</text>
+        <text x="212" y="118" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#12556E">BETWEEN CONDUCTORS</text>
+        <path d="M208,110 L150,118" stroke="#1C6D8B" stroke-width=".9"/>
+        <text x="212" y="150" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#7A8994">The gland seals the jacket.</text>
+        <text x="212" y="164" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#7A8994">Nothing seals what is inside it.</text>
+        <text x="212" y="182" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#7A8994">A cut end 15 m away in a wet</text>
+        <text x="212" y="196" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#7A8994">tray will feed the joint.</text>
+
+        <!-- fix -->
+        <path d="M24,222 L456,222" stroke="#16202B" stroke-width=".9" opacity=".3"/>
+        <text x="24" y="248" font-family="IBM Plex Mono, monospace" font-size="10" fill="#2C6E49" letter-spacing=".8">✓ FIX</text>
+        <text x="24" y="268" font-family="IBM Plex Mono, monospace" font-size="10" fill="#16202B">Water-blocked cable, or pot the backshell,</text>
+        <text x="24" y="284" font-family="IBM Plex Mono, monospace" font-size="10" fill="#16202B">or terminate both ends inside sealed volumes.</text>
+      </svg>
+      <p class="fig-cap">Fig. 7 — Capillary wicking through a stranded cable.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 08 LEAK MAP ========================= -->
+<section id="s8">
+  <p class="eyebrow">08 — Failure geography</p>
+  <h2>Where robot arms actually leak</h2>
+  <p class="lede">Ranked by how often the interface is the one that fails a 30-minute immersion. The joints usually are not the problem — the interfaces that engineering treats as somebody else's part are.</p>
+
+  <div class="two flip">
+    <div class="figure">
+      <svg viewBox="0 0 420 330" role="img" aria-label="Elevation of a six-axis arm with the five most common ingress zones marked">
+        <path d="M60,300 L360,300" stroke="#16202B" stroke-width="1.4"/>
+        <path d="M64,304 L56,312 M84,304 L76,312 M104,304 L96,312 M124,304 L116,312 M144,304 L136,312
+                 M164,304 L156,312 M184,304 L176,312 M204,304 L196,312 M224,304 L216,312 M244,304 L236,312
+                 M264,304 L256,312 M284,304 L276,312 M304,304 L296,312 M324,304 L316,312 M344,304 L336,312"
+              stroke="#16202B" stroke-width=".8" opacity=".5"/>
+        <path d="M78,300 L78,266 L142,266 L142,300 Z" fill="#B4BEC3" stroke="#16202B" stroke-width="1.6"/>
+        <g fill="none" stroke="#16202B" stroke-width="17" stroke-linecap="round" opacity=".16">
+          <path d="M110,266 L110,196"/><path d="M110,196 L232,132"/><path d="M232,132 L322,168"/></g>
+        <g fill="none" stroke="#16202B" stroke-width="2" stroke-linecap="round">
+          <path d="M110,266 L110,196"/><path d="M110,196 L232,132"/><path d="M232,132 L322,168"/></g>
+        <g fill="#fff" stroke="#16202B" stroke-width="1.8">
+          <circle cx="110" cy="196" r="13"/><circle cx="232" cy="132" r="13"/><circle cx="322" cy="168" r="11"/></g>
+        <path d="M330,178 L354,190 L346,206 L322,194 Z" fill="#B4BEC3" stroke="#16202B" stroke-width="1.6"/>
+        <g font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600">
+          <circle cx="352" cy="212" r="12" fill="#B5451B"/><text x="352" y="217" text-anchor="middle" fill="#fff">A</text>
+          <circle cx="60" cy="284" r="12" fill="#B5451B"/><text x="60" y="289" text-anchor="middle" fill="#fff">B</text>
+          <circle cx="344" cy="146" r="12" fill="#1C6D8B"/><text x="344" y="151" text-anchor="middle" fill="#fff">C</text>
+          <circle cx="88" cy="196" r="12" fill="#1C6D8B"/><text x="88" y="201" text-anchor="middle" fill="#fff">D</text>
+          <circle cx="240" cy="102" r="12" fill="#47586A"/><text x="240" y="107" text-anchor="middle" fill="#fff">E</text></g>
+        <g stroke="#16202B" stroke-width=".8" opacity=".55" fill="none">
+          <path d="M340,204 L344,196"/><path d="M72,282 L86,278"/><path d="M334,152 L330,160"/>
+          <path d="M100,196 L97,196"/><path d="M236,114 L233,122"/></g>
+        <text x="60" y="28" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#7A8994" letter-spacing=".8">ELEVATION — INGRESS ZONES</text>
+      </svg>
+      <p class="fig-cap">Fig. 8 — Ingress zones, ranked.</p>
+    </div>
+    <ol class="rank">
+      <li><span class="tag hi">A</span><span><b>Tool flange</b>Electrical, pneumatic and sometimes fluid pass-throughs crossing a rotating interface, plus a customer-designed gripper bolted to it. Your rating stops at your flange face — the end effector is not covered by your certificate, and integrators routinely assume it is. Say so explicitly in the manual.</span></li>
+      <li><span class="tag hi">B</span><span><b>Base connector panel</b>Power, fieldbus, safety I/O and air, all entering at floor level where water collects, plus unmated spare ports left uncapped in the field.</span></li>
+      <li><span class="tag md">C</span><span><b>Wrist cluster</b>Two or three axes packed into the smallest housings, so seal diameters are small, cavities are tiny and there is no room for a labyrinth or a vent.</span></li>
+      <li><span class="tag md">D</span><span><b>Service and brake-release ports</b>Covers that get opened in the field and reclosed by someone who does not know the O-ring is a single-use part or that torque matters.</span></li>
+      <li><span class="tag">E</span><span><b>Joint parting lines</b>The best-behaved interface on the arm, because it is designed once and never opened. Static seals in machined glands rarely fail if the vent is present.</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ========================= 09 VERIFICATION ========================= -->
+<section id="s9">
+  <p class="eyebrow">09 — Verification and process</p>
+  <h2>You cannot dunk every arm</h2>
+  <p class="lede">Immersion is the type test. Production needs something that takes thirty seconds, catches the same defects, and can be run on a sub-assembly before it is buried inside a finished robot.</p>
+
+  <div class="figure">
+    <svg viewBox="0 0 900 300" role="img" aria-label="Air pressure decay leak test setup with a decay curve showing a passing and a failing part against a reject threshold">
+      <!-- rig -->
+      <text x="30" y="26" font-family="IBM Plex Mono, monospace" font-size="10" fill="#47586A" letter-spacing="1">PRESSURE DECAY RIG</text>
+      <rect x="30" y="42" width="390" height="234" fill="#fff" stroke="#16202B" stroke-width="1.2"/>
+      <!-- supply -->
+      <circle cx="76" cy="106" r="22" fill="#fff" stroke="#16202B" stroke-width="1.4"/>
+      <path d="M76,92 L76,120 M62,106 L90,106" stroke="#16202B" stroke-width="1.1"/>
+      <text x="52" y="146" font-family="IBM Plex Mono, monospace" font-size="9" fill="#47586A">REGULATOR</text>
+      <path d="M98,106 L166,106" stroke="#16202B" stroke-width="2"/>
+      <!-- valve -->
+      <path d="M166,94 L190,118 L190,94 L166,118 Z" fill="#fff" stroke="#16202B" stroke-width="1.4"/>
+      <text x="158" y="146" font-family="IBM Plex Mono, monospace" font-size="9" fill="#47586A">FILL VALVE</text>
+      <path d="M190,106 L250,106" stroke="#16202B" stroke-width="2"/>
+      <!-- sensor -->
+      <rect x="222" y="56" width="56" height="30" fill="#16202B"/>
+      <text x="250" y="76" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#fff">ΔP</text>
+      <path d="M250,86 L250,106" stroke="#16202B" stroke-width="1.6"/>
+      <!-- DUT -->
+      <path d="M250,106 L250,150" stroke="#16202B" stroke-width="2"/>
+      <rect x="196" y="150" width="180" height="88" rx="4" fill="#B4BEC3" stroke="#16202B" stroke-width="1.6"/>
+      <rect x="212" y="166" width="148" height="56" rx="2" fill="#fff" stroke="#16202B" stroke-width=".9" opacity=".8"/>
+      <text x="286" y="199" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#16202B">JOINT SUB-ASSEMBLY</text>
+      <text x="40" y="262" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8994">Test the module, not the finished arm — a failed joint at final assembly is a strip-down.</text>
+
+      <!-- decay chart -->
+      <text x="470" y="26" font-family="IBM Plex Mono, monospace" font-size="10" fill="#47586A" letter-spacing="1">DECAY CURVE</text>
+      <rect x="470" y="42" width="400" height="234" fill="#fff" stroke="#16202B" stroke-width="1.2"/>
+      <path d="M516,66 L516,242 L840,242" stroke="#16202B" stroke-width="1.2" fill="none"/>
+      <!-- phases -->
+      <path d="M516,252 L580,252" stroke="#C08A1E" stroke-width="3"/>
+      <text x="518" y="268" font-family="IBM Plex Mono, monospace" font-size="8.5" fill="#7A8994">FILL</text>
+      <path d="M580,252 L648,252" stroke="#47586A" stroke-width="3"/>
+      <text x="582" y="268" font-family="IBM Plex Mono, monospace" font-size="8.5" fill="#7A8994">SETTLE</text>
+      <path d="M648,252 L840,252" stroke="#12556E" stroke-width="3"/>
+      <text x="650" y="268" font-family="IBM Plex Mono, monospace" font-size="8.5" fill="#7A8994">MEASURE</text>
+      <!-- reject band -->
+      <path d="M648,132 L840,132" stroke="#B5451B" stroke-width="1" stroke-dasharray="3 3"/>
+      <text x="700" y="126" font-family="IBM Plex Mono, monospace" font-size="9" fill="#B5451B">REJECT THRESHOLD</text>
+      <!-- pass -->
+      <path d="M516,242 C540,120 560,92 580,90 L648,90 C700,92 770,96 840,100" fill="none" stroke="#12556E" stroke-width="2.4"/>
+      <text x="786" y="88" font-family="IBM Plex Mono, monospace" font-size="9.5" font-weight="600" fill="#12556E">PASS</text>
+      <!-- fail -->
+      <path d="M648,90 C700,110 770,150 840,186" fill="none" stroke="#B5451B" stroke-width="2.4"/>
+      <text x="790" y="204" font-family="IBM Plex Mono, monospace" font-size="9.5" font-weight="600" fill="#B5451B">FAIL</text>
+      <text x="478" y="90" font-family="IBM Plex Mono, monospace" font-size="9" fill="#47586A">kPa</text>
+      <text x="760" y="258" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8994">TIME →</text>
+    </svg>
+    <p class="fig-cap">Fig. 9 — Pressure decay. Settle time exists because filling heats the gas; measure only after it stabilises, or the thermal transient swamps the leak signal.</p>
+  </div>
+
+  <div class="check" style="margin-top:22px">
+    <ol>
+      <li><b>Correlate the decay limit to immersion, do not guess it</b><span>Build master parts with calibrated leaks — a laser-drilled orifice of known size — immersion-test them, and set the production threshold from where pass and fail actually separate. A decay limit chosen from intuition either passes leakers or scraps good parts.</span></li>
+      <li><b>Pressurise, never evacuate</b><span>Pressure pushes seals against their seats in the same direction that immersion does not. If you want a harsher test, that asymmetry is exactly why some teams also run a vacuum decay — it reproduces the thermal-cooldown condition from section 02.</span></li>
+      <li><b>Give the vent a plug fixture</b><span>You cannot leak-test a vented cavity. The fixture must positively seal over the vent, and the process must guarantee the plug is removed afterwards. Poka-yoke it; a shipped robot with a blocked vent is worse than one with no vent at all.</span></li>
+      <li><b>Immersion-test after thermal shock, not before</b><span>The field condition is a hot arm hit with cold water. Qualification should follow the same order: thermal cycling, then immersion, then a second immersion after the endurance run. Testing a virgin cold sample flatters the design.</span></li>
+      <li><b>Run both directions of joint rotation</b><span>Machining lead on the counterface pumps one way. A seal that passes clockwise can leak counter-clockwise, and a robot joint does both all day.</span></li>
+      <li><b>Test the seal you will ship, at the tolerance extremes</b><span>Build qualification samples deliberately at minimum squeeze and maximum groove fill. Nominal parts hide the design's real margin.</span></li>
+      <li><b>Re-verify after service</b><span>The rating belongs to the assembly, not the drawing. Define which seals are single-use, publish the torque sequence, and require a decay test after any field opening of a sealed cavity.</span></li>
+    </ol>
+  </div>
+  <p class="tbl-cap">Tab. 4 — Verification sequence. Steps 3 and 4 are the two most commonly skipped.</p>
+</section>
+
+<!-- ========================= 10 CONSEQUENCES ========================= -->
+<section id="s10">
+  <p class="eyebrow">10 — Consequences</p>
+  <h2>What sealing costs you elsewhere</h2>
+  <p class="lede">IP67 is not free performance. Every one of these shows up in the datasheet of a sealed robot compared with its open equivalent, and each is worth pricing into the spec before it is committed.</p>
+
+  <table>
+    <thead><tr><th>Consequence</th><th>Order of magnitude</th><th>Why, and what to do about it</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Thermal derating</td><td class="num">Continuous torque ↓</td>
+        <td>A sealed cavity has no convection. All motor and drive loss must conduct out through the housing wall, so the aluminium structure becomes the heatsink. Expect thicker walls, a deliberate thermal path from stator to housing, and a lower continuous duty rating than the same actuator in an open frame.</td></tr>
+      <tr><td class="k">Seal drag</td><td class="num">Parasitic torque + heat</td>
+        <td>Every lip seal takes torque, and that loss becomes heat exactly where you least want it. It also corrupts current-based force estimation — a real issue if the arm does collision detection or force control without joint torque sensors. Characterise the drag across temperature and compensate it, or budget for torque sensing.</td></tr>
+      <tr><td class="k">Wear-limited life</td><td class="num">Type test ≠ lifetime</td>
+        <td>The certificate is a test on a new sample. Lip seals wear, elastomers take compression set, and grease migrates. Define a seal service interval, and re-verify IP after the endurance test rather than only before it.</td></tr>
+      <tr><td class="k">Chemical compatibility</td><td class="num">Elastomer selection</td>
+        <td>NBR is the default and is attacked by several common sanitisers and cutting fluids. EPDM handles steam and caustics but swells in oil. FKM covers most solvents and higher temperatures. Choose against the customer's actual cleaning chemistry — see Tab. 3.</td></tr>
+      <tr><td class="k">Serviceability</td><td class="num">Field repair ↓</td>
+        <td>Every sealed interface is one a technician can compromise. Minimise the number of covers that ever need opening, make single-use seals visually obvious, ship spare seal kits with the service part, and put the torque sequence on a label inside the cover.</td></tr>
+      <tr><td class="k">Assembly discipline</td><td class="num">Process capability</td>
+        <td>Sealing is a process, not a drawing note. Controlled torque and sequence, single-use O-rings, gland cleanliness, lip lubrication on install, and a documented handling rule for the ground counterface — a fingernail scratch on that surface is a failed unit.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<div class="foot">
+  <span><a href="../index.html" style="color:var(--immersion);text-decoration:none">← Design Atlas / Engineering Design</a></span>
+  <span>IEC 60529 · ISO 3601 (O-rings) · ISO 6194 / DIN 3760 (rotary seals) · IEC 60034-5 (motors) · ISO 20653 (vehicles)</span>
+  <span>Reference sheet — verify all values against current standard text and seal-maker data</span>
+</div>
+</div>
+
+</body>
+</html>
